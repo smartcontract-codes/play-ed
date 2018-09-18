@@ -1,0 +1,38 @@
+{
+  "name": "play-editor",
+  "version": "0.0.0",
+  "description": "embeddable solidity editor",
+  "main": "src/play-editor.js",
+  "scripts": {
+    "start": "budo demo.js:bundle.js --open --live",
+    "build": "browserify demo.js > bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethereum-play/play-editor.git"
+  },
+  "keywords": [
+    "embed",
+    "embeddable",
+    "editor",
+    "codemirror",
+    "play",
+    "ethereum"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ethereum/play/issues"
+  },
+  "homepage": "https://ethereum-play.github.io/play-editor",
+  "devDependencies": {
+    "budo": "^11.3.2"
+  },
+  "dependencies": {
+    "bel": "^6.0.0",
+    "coding-editor": "0.0.3",
+    "csjs-inject": "^1.0.1",
+    "solc-js": "^0.5.2"
+  }
+}
