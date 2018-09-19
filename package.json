@@ -1,6 +1,6 @@
 {
   "name": "play-editor",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "embeddable solidity editor",
   "main": "src/play-editor.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "bel": "^6.0.0",
     "coding-editor": "0.0.3",
     "csjs-inject": "^1.0.1",
-    "smartcontract-app": "^1.0.4",
+    "smartcontract-app": "^1.0.5",
     "solc-js": "^0.5.4"
   }
 }
