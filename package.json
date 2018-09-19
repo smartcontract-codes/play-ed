@@ -1,6 +1,6 @@
 {
   "name": "play-editor",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "embeddable solidity editor",
   "main": "src/play-editor.js",
   "scripts": {
@@ -33,6 +33,6 @@
     "bel": "^6.0.0",
     "coding-editor": "0.0.3",
     "csjs-inject": "^1.0.1",
-    "solc-js": "^0.5.2"
+    "solc-js": "^0.5.3"
   }
 }

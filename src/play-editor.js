@@ -58,12 +58,14 @@ contract Greeter is Mortal {
   function update () {
     if (compiler) {
       var sourcecode = ed.el.api.getValue()
-      var metadata = compiler.compile(sourcecode)
-      console.log(metadata)
-      var el = smartcontract({ metadata })
-      scapp.el.innerHTML = ''
-      scapp.el.appendChild(el)
-      output.el.textContent = JSON.stringify(metadata)
+      var id = setTimeout(() => {
+        var metadata = compiler.compile(sourcecode)
+        // console.log(metadata)
+        var el = smartcontract({ metadata })
+        scapp.el.innerHTML = ''
+        scapp.el.appendChild(el)
+        output.el.textContent = JSON.stringify(metadata)
+      }, 0)
     }
   }
   ed.el.api.on('change', debounce((api) => update()))
