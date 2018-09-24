@@ -15,7 +15,7 @@ document.body.innerHTML = `
 
 document.body.appendChild(playeditor())
 
-},{"./":39}],2:[function(require,module,exports){
+},{"./":58}],2:[function(require,module,exports){
 var trailingNewlineRegex = /\n[\s]+$/
 var leadingNewlineRegex = /^\n[\s]+/
 var trailingSpaceRegex = /[\s]+$/
@@ -14113,7 +14113,7 @@ function csjsInserter() {
 module.exports = csjsInserter;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"csjs":20,"insert-css":36}],16:[function(require,module,exports){
+},{"csjs":20,"insert-css":42}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = require('csjs/get-css');
@@ -14908,361 +14908,6 @@ var closeRE = RegExp('^(' + [
 function selfClosing (tag) { return closeRE.test(tag) }
 
 },{"hyperscript-attribute-to-property":34}],36:[function(require,module,exports){
-var inserted = {};
-
-module.exports = function (css, options) {
-    if (inserted[css]) return;
-    inserted[css] = true;
-    
-    var elem = document.createElement('style');
-    elem.setAttribute('type', 'text/css');
-
-    if ('textContent' in elem) {
-      elem.textContent = css;
-    } else {
-      elem.styleSheet.cssText = css;
-    }
-    
-    var head = document.getElementsByTagName('head')[0];
-    if (options && options.prepend) {
-        head.insertBefore(elem, head.childNodes[0]);
-    } else {
-        head.appendChild(elem);
-    }
-};
-
-},{}],37:[function(require,module,exports){
-const bel = require('bel')
-const csjs = require('csjs-inject')
-
-module.exports = menubar
-
-function menubar (play = 'play-logo') {
-  return bel`
-    <div class=${css.menubar}>
-      <div class=${css.navbar}>
-        <button class=${css.btn} onclick=${showEditor}>editor</button>
-        <button class=${css.btn} onclick=${showBoth}>both</button>
-        <button class=${css.btn} onclick=${showPreview}>preview</button>
-      </div>
-      <div class=${css.logo}>
-        ${play}
-      </div>
-    </div>`
-}
-function showEditor () {
-  console.log('@TODO: show editor only')
-}
-function showBoth () {
-  console.log('@TODO: show editor and preview')
-}
-function showPreview () {
-  console.log('@TODO: show preview')
-}
-const css = csjs`
-.navbar {
-  margin: 0;
-}
-.btn {
-  margin: 0 2px;
-}
-.logo {
-  background-color: red;
-  height: 100%;
-  margin-right: 10px;
-}
-.menubar {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: yellow;
-}`
-
-},{"bel":3,"csjs-inject":17}],38:[function(require,module,exports){
-const bel = require('bel')
-const csjs = require('csjs-inject')
-
-module.exports = tiler
-
-function tiler (strings, ...args) {
-  var mosaic = parse(strings, args)
-  var el = template(mosaic)
-  el.length = mosaic.length
-  mosaic.reduce((el, val, key) => (el[key] = val, el), el)
-  return el
-}
-function template (mosaic) {
-  var opts = mosaic[0]
-  var args = mosaic.slice(1)
-  var cmd = opts.cmd
-  if (cmd === 'tab') return tab(opts, args)
-  if (cmd === 'col' || cmd === 'row') return tile(cmd, args)
-  return command(opts, args)
-  // console.log(opts)
-  // for (var i = 1, len = mosaic.length; i < len; i++) {
-  //   var item = mosaic[i]
-  //
-  //   console.log(mosaic[i])
-  // }
-  // console.log('----------')
-  // return bel`
-  //   <div class=${css.tilemosaic}>
-  //     ${'menu()'}
-  //     ${'elements.map(tab)'}
-  //   </div>`
-}
-function tile (cmd, args) {
-  return bel`
-    <div class="${css.tile} ${cmd === 'col' ? css.col : css.row}">
-      ${args.map(item => template(item))}
-    </div>`
-}
-function tab ({ active = 1 }, args) {
-  var element = args[active - 1].el
-  var names = args.map(item => item.name)
-  var container = bel`<div class=${css.container}>${element}</div>`
-  return bel`
-    <div class=${css.tab}>
-      ${menu(names, active - 1, args, container)}
-      ${container}
-    </div>`
-}
-function menu (names, active, args, container) {
-  var elements = names.map((name, i) => bel`
-    <a class=${css.tabname} onclick=${e => onclick(i)}>${name}</a>
-  `)
-  elements[active].classList.add(css.tabactive)
-  return bel`
-    <div class=${css.menu}>
-      ${elements}
-    </div>`
-  function onclick (i) {
-    elements[active].classList.remove(css.tabactive)
-    active = i
-    elements[active].classList.add(css.tabactive)
-    // debugger
-    container.innerHTML = ''
-    container.appendChild(args[i].el)
-  }
-}
-function command (opts, args) {
-  console.log(opts, args)
-  console.error('@TODO: implement custom commands')
-}
-function parse (strings, args) {
-  var editor = args[0]
-  var output = args[1]
-  var scapp = args[2]
-  var navbar = args[3]
-  return [
-    { cmd: 'col' },
-      [{cmd: 'row'},
-      [{cmd: 'tab', active: 1 }, editor, output],
-      [{cmd: 'tab'}, scapp]
-    ],
-    [{cmd: 'tab'}, navbar]
-  ]
-}
-const css = csjs`
-  .tile {
-    display: flex;
-    position: relative;
-    box-sizing: border-box;
-    overflow: auto;
-  }
-  .tab {
-    display: flex;
-    flex-direction: column;
-    padding: 5px;
-    background-color: green;
-  }
-  .menu {
-    padding: 5px 5px 0px;
-    height: 23px;
-  }
-  .tabname {
-    margin: 0px 3px;
-    padding: 3px 3px 0px 3px;
-    border: 1px dotted white;
-    background-color: grey;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .tabactive {
-    border-bottom: 1px solid grey;
-    color: white;
-  }
-  .container {
-    height: calc(100% - 23px);
-    background-color: grey;
-  }
-  .col {
-    flex-direction: column;
-    padding: 5px;
-    background-color: red;
-  }
-  .row {
-    flex-direction: row;
-    padding: 5px;
-    background-color: blue;
-  }
-`
-
-},{"bel":3,"csjs-inject":17}],39:[function(require,module,exports){
-const bel = require('bel')
-const csjs = require('csjs-inject')
-
-const solcjs = require('solc-js')
-const smartcontract = require('smartcontract-app')
-const codingeditor = require('coding-editor')
-
-const tiler = require('tiler')
-
-const menubar = require('menubar')
-
-module.exports = playeditor
-
-function playeditor (opts = {}) {
-  const ed = {
-    name: 'contract.sol',
-    el: codingeditor({
-      value: `
-contract Mortal {
-    /* Define variable owner of the type address */
-    address owner;
-
-    /* This function is executed at initialization and sets the owner of the contract */
-    function Mortal() { owner = msg.sender; }
-
-    /* Function to recover the funds on the contract */
-    function kill() { if (msg.sender == owner) selfdestruct(owner); }
-}
-
-contract Greeter is Mortal {
-    /* Define variable greeting of the type string */
-    string greeting;
-
-    /* This runs when the contract is executed */
-    function Greeter(string _greeting) public {
-        greeting = _greeting;
-    }
-
-    /* Main function */
-    function greet() constant returns (string) {
-        return greeting;
-    }
-}
-      `,
-      lineNumbers: true,
-    }),
-  }
-  var compiler
-  solcjs.version2url((err, select) => {
-    var latest = select.releases[0]
-    select(latest, (err, url) => {
-      solcjs(url, (err, solc) => {
-        compiler = solc
-        update()
-      })
-    })
-  })
-  function update () {
-    if (compiler) {
-      var sourcecode = ed.el.api.getValue()
-      var id = setTimeout(() => {
-        var metadata = compiler.compile(sourcecode)
-        // console.log(metadata)
-        var el = smartcontract({ metadata })
-        scapp.el.innerHTML = ''
-        scapp.el.appendChild(el)
-        output.el.textContent = JSON.stringify(metadata)
-      }, 0)
-    }
-  }
-  ed.el.api.on('change', debounce((api) => update()))
-  function debounce (fn) {
-    const wait = 100
-    var timeout, context, args
-    const exec = () => {
-      fn.apply(context, args)
-      timeout = undefined
-    }
-    return function () {
-      context = this
-      args = arguments
-      if (timeout) return
-      timeout = setTimeout(exec, wait)
-    }
-  }
-  const out = { el: bel`<p>OUTPUT</b>`, name: 'output' }
-  const sc = { el: bel`<div></div>`, name: 'preview' }
-  const mb = { el: menubar(), name: 'navbar' }
-  const mosaic = tiler`
-    [${ed}] ${out} | ${sc}
-    ${mb}`
-  const [,[,[,editor, output],[,scapp]],[,navbar]] = Array.from(mosaic)
-  return bel`<div class=${css.playeditor}>${mosaic}</div>`
-}
-
-const css = csjs`
-  .playeditor {
-    background-color: pink;
-    height: 100%;
-    width: 100%;
-  }
-`
-
-},{"bel":3,"coding-editor":13,"csjs-inject":17,"menubar":37,"smartcontract-app":73,"solc-js":81,"tiler":38}],40:[function(require,module,exports){
-arguments[4][2][0].apply(exports,arguments)
-},{"dup":2}],41:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"./appendChild":40,"dup":3,"hyperx":62}],42:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"csjs":47,"dup":15,"insert-css":69}],43:[function(require,module,exports){
-arguments[4][16][0].apply(exports,arguments)
-},{"csjs/get-css":46,"dup":16}],44:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"./csjs":42,"./get-css":43,"dup":17}],45:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"./lib/csjs":51,"dup":18}],46:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"./lib/get-css":55,"dup":19}],47:[function(require,module,exports){
-arguments[4][20][0].apply(exports,arguments)
-},{"./csjs":45,"./get-css":46,"dup":20}],48:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"dup":21}],49:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"./composition":50,"dup":22}],50:[function(require,module,exports){
-arguments[4][23][0].apply(exports,arguments)
-},{"dup":23}],51:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"./build-exports":49,"./composition":50,"./css-extract-extends":52,"./css-key":53,"./extract-exports":54,"./scopeify":60,"dup":24}],52:[function(require,module,exports){
-arguments[4][25][0].apply(exports,arguments)
-},{"./composition":50,"dup":25}],53:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"dup":26}],54:[function(require,module,exports){
-arguments[4][27][0].apply(exports,arguments)
-},{"./regex":57,"dup":27}],55:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"./css-key":53,"dup":28}],56:[function(require,module,exports){
-arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],57:[function(require,module,exports){
-arguments[4][30][0].apply(exports,arguments)
-},{"dup":30}],58:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"./regex":57,"dup":31}],59:[function(require,module,exports){
-arguments[4][32][0].apply(exports,arguments)
-},{"./base62-encode":48,"./hash-string":56,"dup":32}],60:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"./regex":57,"./replace-animations":58,"./scoped-name":59,"dup":33}],61:[function(require,module,exports){
-arguments[4][34][0].apply(exports,arguments)
-},{"dup":34}],62:[function(require,module,exports){
-arguments[4][35][0].apply(exports,arguments)
-},{"dup":35,"hyperscript-attribute-to-property":61}],63:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 
@@ -15271,12 +14916,11 @@ module.exports = displayAddressInput
 function displayAddressInput({theme: {classes: css}, type}) {
   return bel`
       <div class=${css.addressField}>
-        <div class=${css.keyField}><i class="${css.icon} fa fa-key"></i></div>
         <input class=${css.inputField} placeholder='0x6e2...'>
       </div>`
 }
 
-},{"bel":41,"csjs-inject":44}],64:[function(require,module,exports){
+},{"bel":3,"csjs-inject":17}],37:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 var inputAddress = require("input-address")
@@ -15364,7 +15008,7 @@ function getParsedArray (type) {
   return arr
 }
 
-},{"bel":41,"csjs-inject":44,"input-address":63,"input-boolean":65,"input-integer":66,"input-string":68}],65:[function(require,module,exports){
+},{"bel":3,"csjs-inject":17,"input-address":36,"input-boolean":38,"input-integer":39,"input-string":41}],38:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 
@@ -15397,7 +15041,7 @@ function displayBooleanInput({theme: {classes: css, colors}, type}) {
   }
 }
 
-},{"bel":41,"csjs-inject":44}],66:[function(require,module,exports){
+},{"bel":3,"csjs-inject":17}],39:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 var validateInput = require('validate-input')
@@ -15456,7 +15100,7 @@ function displayIntegerInput({theme: {classes: css}, type}) {
 
 }
 
-},{"bel":41,"csjs-inject":44,"validate-input":67}],67:[function(require,module,exports){
+},{"bel":3,"csjs-inject":17,"validate-input":40}],40:[function(require,module,exports){
 module.exports = validateInput
 
 function validateInput ({ type, e }) {
@@ -15471,7 +15115,7 @@ function validateInput ({ type, e }) {
   }
 }
 
-},{}],68:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 
@@ -15484,9 +15128,193 @@ function displayStringInput({theme: {classes: css}, type}) {
     </div>`
 }
 
-},{"bel":41,"csjs-inject":44}],69:[function(require,module,exports){
-arguments[4][36][0].apply(exports,arguments)
-},{"dup":36}],70:[function(require,module,exports){
+},{"bel":3,"csjs-inject":17}],42:[function(require,module,exports){
+var inserted = {};
+
+module.exports = function (css, options) {
+    if (inserted[css]) return;
+    inserted[css] = true;
+    
+    var elem = document.createElement('style');
+    elem.setAttribute('type', 'text/css');
+
+    if ('textContent' in elem) {
+      elem.textContent = css;
+    } else {
+      elem.styleSheet.cssText = css;
+    }
+    
+    var head = document.getElementsByTagName('head')[0];
+    if (options && options.prepend) {
+        head.insertBefore(elem, head.childNodes[0]);
+    } else {
+        head.appendChild(elem);
+    }
+};
+
+},{}],43:[function(require,module,exports){
+const indexedDB = window.indexedDB
+const console = window.console
+
+module.exports = kvidb
+
+const dbname = 'kvidb'
+// const dbopts = { keyPath: 'key' }
+const version = 1
+
+function kvidb (opts) {
+  const name = opts ? opts.name || ('' + opts) : 'store'
+  const scope = `${dbname}-${name}`
+  var IDB
+  const makeDB = done => {
+    var idb = indexedDB.open(dbname, version)
+    idb.onerror = e => console.error(`[${dbname}]`, idb.error)
+    idb.onupgradeneeded = () => idb.result.createObjectStore(scope/*, dbopts*/)
+    idb.onsuccess = () => done(IDB = idb.result)
+  }
+  const use = (mode, done) => {
+    const next = (IDB, tx) => (tx = IDB.transaction([scope], mode),
+      done(tx.objectStore(scope), tx))
+    IDB ? next(IDB) : makeDB(next)
+  }
+  const api = {
+    get: (key, done) => use('readonly', (store, tx) => {
+      const req = store.get('' + key)
+      tx.oncomplete = e => next(req.error, req.result)
+      const next = (e, x) => {
+        e ? done(e) : x === undefined ? done(`key "${key}" is undefined`)
+        : done(null, x)
+      }
+    }),
+    put: (key, val, done) => val === undefined ? done('`value` is undefined')
+      : use('readwrite', (store, tx) => {
+        const req = store.put(val, '' + key)
+        tx.oncomplete = e => done(req.error, !req.error)
+    }),
+    del: (key, done) => api.get('' + key, (e, x) => {
+      e ? done(e) : use('readwrite', (store, tx) => {
+        const req = store.delete('' + key)
+        tx.oncomplete = e => done(req.error, !req.error)
+      })
+    }),
+    clear: done => use('readwrite',  (store, tx) => {
+      const req = store.clear()
+      tx.oncomplete = e => done(req.error, !req.error)
+    }),
+    length: done => use('readwrite',  (store, tx) => {
+      const req = store.count()
+      tx.oncomplete = e => done(req.error, req.result)
+    }),
+    close: done => (IDB ? IDB.close() : makeDB(IDB => IDB.close()), done(null, true)),
+    batch: (ops, done) => done('@TODO: implement `.batch(...)`'),
+    keys: done => use('readonly', (store, tx, keys = []) => {
+      const openCursor = (store.openKeyCursor || store.openCursor)
+      const req = openCursor.call(store)
+      tx.oncomplete = e => done(req.error, req.error ? undefined : keys)
+      req.onsuccess = () => {
+        const x = req.result
+        if (x) (keys.push(x.key), x.continue())
+      }
+    })
+    // key: (n, done) => (n < 0) ? done(null) : use('readonly', store => {
+    //   var advanced = false
+    //   var req = store.openCursor()
+    //   req.onsuccess = () => {
+    //     var cursor = req.result
+    //     if (!cursor) return
+    //     if (n === 0 || advanced) return // Either 1) maybe return first key, or 2) we've got the nth key
+    //     advanced = true // Otherwise, ask the cursor to skip ahead n records
+    //     cursor.advance(n)
+    //   }
+    //   req.onerror = () => (console.error('Error in asyncStorage.key(): '), req.error.name)
+    //   req.onsuccess = () => done((req.result || {}).key || null)
+    // }),
+    // This would be store.getAllKeys(), but it isn't supported by Edge or Safari.
+    // And openKeyCursor isn't supported by Safari.
+    // tx.oncomplete = () => done(null, keys)
+  }
+  return api
+}
+
+},{}],44:[function(require,module,exports){
+module.exports = logo
+
+function logo (opts) {
+  var colors = opts.colors
+  var urls = opts.urls
+
+  var scale = 3
+  var scaleX = 1 * scale
+  var scaleY = 1 * scale
+  var X = { OL: 0, ML: 26, IL: 52, CE: 78,
+            IR: 104, MR: 130, OR: 156 }
+  var Y = { OT: 0, MT: 30, OTLR: 45, IT: 60, ITLR: 75, CE: 90,
+            IBLR: 105, IB: 120, OBLR: 135, MB: 150, OB: 180 }
+  Object.keys(X).forEach(x => X[x] = X[x] * scaleX)
+  Object.keys(Y).forEach(y => Y[y] = Y[y] * scaleY)
+  // ----------------------------------------------------------------------------
+  var                          oT=`${X.CE},${Y.OT}`
+  var                          mT=`${X.CE},${Y.MT}`
+  var oTL=`${X.OL},${Y.OTLR}`,                          oTR=`${X.OR},${Y.OTLR}`
+  var    mTL=`${X.ML},${Y.IT}`,iT=`${X.CE},${Y.IT}`,mTR=`${X.MR},${Y.IT}`
+  var              iTL=`${X.IL},${Y.ITLR}`, iTR=`${X.IR},${Y.ITLR}`
+  var                          iC=`${X.CE},${Y.CE}`
+  var              iBL=`${X.IL},${Y.IBLR}`, iBR=`${X.IR},${Y.IBLR}`
+  var    mBL=`${X.ML},${Y.IB}`,iB=`${X.CE},${Y.IB}`,mBR=`${X.MR},${Y.IB}`
+  var oBL=`${X.OL},${Y.OBLR}`,                          oBR=`${X.OR},${Y.OBLR}`
+  var                          mB=`${X.CE},${Y.MB}`
+  var                          oB=`${X.CE},${Y.OB}`
+
+  const polygon = (points, opts) => {
+    if (opts.fillType === 'url') {
+      return `<polygon style="fill:url(${opts.fill});stroke:black;stroke-width:2;"   points="${points.join(' ')}"></polygon>`
+    } else {
+      return `<polygon style="fill:${opts.fill};stroke:black;stroke-width:2;" points="${points.join(' ')}"></polygon>`
+    }
+  }
+  const outerleft = polygon([oT, mT, mTL, mBL, oBL, oTL], getFill(0))
+  const innerLeft = polygon([iT, iC, iBL, iTL], getFill(0))
+  const middleRight = polygon([mTR, mBR, mB, iB, iBR, iTR], getFill(0))
+  const outerRight = polygon([oT,oTR,oBR,mBR,mTR,mT], getFill(1))
+  const innerRight = polygon([iT,iTR,iBR,iC], getFill(1))
+  const middleLeft = polygon([mTL,iTL,iBL,iB,mB,mBL], getFill(1))
+  const middleTop = polygon([mT,mTR,iTR,iT,iTL,mTL], getFill(2))
+  const innerBottom = polygon([iC,iBR,iB,iBL], getFill(2))
+  const outerBottom = polygon([mBR,oBR,oB,oBL,mBL,mB,mBR], getFill(2))
+
+  var fills = []
+  function getFill (pos) {
+    if (urls[pos]) { return { fillType: 'url' , fill: `#img${pos}` } }
+    else if (colors[pos]) { return { fillType: 'color', fill: colors[pos] } }
+    else { return { fillType: 'noFill' , fill: 'transparent' } }
+  }
+
+
+var el = document.createElement('div')
+el.innerHTML = `
+  <svg viewBox="0 0 600 800">
+    <defs>
+      <pattern id="img0" patternUnits="objectBoundingBox" width="1" height="1">
+        <image xlink:href="${urls[0]}" x="0" y="0"/>
+      </pattern>
+      <pattern id="img1" patternUnits="objectBoundingBox" width="1" height="1">
+        <image xlink:href="${urls[1]}" x="-1600" y="-600"/>
+      </pattern>
+      <pattern id="img2" patternUnits="objectBoundingBox" width="1" height="1">
+        <image xlink:href="${urls[2]}" x="0" y="0"/>
+      </pattern>
+    </defs>
+    ${outerleft}                                    ${outerRight}
+                           ${middleTop}
+        ${middleLeft}${innerLeft}${innerRight}${middleRight}
+                          ${innerBottom}
+                          ${outerBottom}
+  </svg>`
+
+return el.children[0]
+}
+
+},{}],45:[function(require,module,exports){
 var inputAddress = require("input-address")
 var inputArray = require("input-array")
 var inputInteger = require("input-integer")
@@ -15510,7 +15338,7 @@ function checkInputType ({ name, theme, type }) {
 
 // boolean, int/uint, fixed/ufixed, address, string, byte/bytes, enum, hash 
 
-},{"input-address":63,"input-array":64,"input-boolean":65,"input-container":72,"input-integer":66,"input-string":68}],71:[function(require,module,exports){
+},{"input-address":36,"input-array":37,"input-boolean":38,"input-container":47,"input-integer":39,"input-string":41}],46:[function(require,module,exports){
 module.exports = word => glossary[word]
 
 var glossary = {
@@ -15520,7 +15348,7 @@ var glossary = {
   nonpayable: `NONPAYABLE FUNCTION`
 }
 
-},{}],72:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var inputArray = require("input-array")
 var bel = require('bel')
 
@@ -15547,7 +15375,7 @@ function template({name, theme: {classes: css}, type, input}) {
     </div>`
 }
 
-},{"bel":41,"input-array":64}],73:[function(require,module,exports){
+},{"bel":3,"input-array":37}],48:[function(require,module,exports){
 var bel = require("bel")
 var csjs = require("csjs-inject")
 var checkInputType = require('check-input-type')
@@ -15587,9 +15415,6 @@ var css = csjs`
       align-items: center;
       background-color: ${colors.dark};
       color: ${colors.whiteSmoke};
-    }
-    .error {
-      border: 1px solid ${colors.violetRed};
     }
     .ulVisible {
       visibility: visible;
@@ -15834,207 +15659,113 @@ function inputStyle() {
 module.exports = displayContractUI
 
 function displayContractUI(opts) {
-  if (!Array.isArray(opts.metadata)) {
-    var solcMetadata = opts.metadata
+  var solcMetadata = opts.metadata
 
-    function getConstructorName() {
-      var file = Object.keys(solcMetadata.settings.compilationTarget)[0]
-      return solcMetadata.settings.compilationTarget[file]
-    }
+  function getConstructorName() {
+    var file = Object.keys(solcMetadata.settings.compilationTarget)[0]
+    return solcMetadata.settings.compilationTarget[file]
+  }
 
-    function getConstructorInput() {
-      return solcMetadata.output.abi.map(fn => {
-        if (fn.type === "constructor") {
-          return treeForm(fn.inputs)
-        }
-      })
-    }
-
-    function getContractFunctions() {
-      return solcMetadata.output.abi.map(x => {
-        var obj = {}
-        obj.name = x.name
-        obj.type = x.type
-        obj.inputs = getAllInputs(x)
-        obj.stateMutability = x.stateMutability
-        return obj
-      })
-    }
-
-    function getAllInputs(fn) {
-      var inputs = []
-      if (fn.inputs) {
+  function getConstructorInput() {
+    return solcMetadata.output.abi.map(fn => {
+      if (fn.type === "constructor") {
         return treeForm(fn.inputs)
       }
-    }
+    })
+  }
 
-    function treeForm(data) {
-      return data.map(x => {
-        if (x.components) {
-          return bel`<li><div>${x.name} (${x.type})</div><ul>${treeForm(x.components)}</ul></li>`
-        }
-        if (!x.components) {
-          return contractUI(x)
-        }
-      })
-    }
+  function getContractFunctions() {
+    return solcMetadata.output.abi.map(x => {
+      var obj = {}
+      obj.name = x.name
+      obj.type = x.type
+      obj.inputs = getAllInputs(x)
+      obj.stateMutability = x.stateMutability
+      return obj
+    })
+  }
 
-    var metadata = {
-      compiler: solcMetadata.compiler.version,
-      compilationTarget: solcMetadata.settings.compilationTarget,
-      constructorName: getConstructorName(),
-      constructorInput: getConstructorInput(),
-      functions: getContractFunctions()
+  function getAllInputs(fn) {
+    var inputs = []
+    if (fn.inputs) {
+      return treeForm(fn.inputs)
     }
+  }
 
-    function contractUI(field) {
-      var theme = { classes: css, colors}
-      var name = field.name
-      var type = field.type
-      return checkInputType({name, theme, type})
-    }
+  function treeForm(data) {
+    return data.map(x => {
+      if (x.components) {
+        return bel`<li><div>${x.name} (${x.type})</div><ul>${treeForm(x.components)}</ul></li>`
+      }
+      if (!x.components) {
+        return contractUI(x)
+      }
+    })
+  }
 
-    var html = bel`
+  var metadata = {
+    compiler: solcMetadata.compiler.version,
+    compilationTarget: solcMetadata.settings.compilationTarget,
+    constructorName: getConstructorName(),
+    constructorInput: getConstructorInput(),
+    functions: getContractFunctions()
+  }
+
+  function contractUI(field) {
+    var theme = { classes: css, colors}
+    var name = field.name
+    var type = field.type
+    return checkInputType({name, theme, type})
+  }
+
+  var html = bel`
     <div class=${css.preview}>
-    <div class=${css.constructorFn}>
-    <div class=${css.contractName}>${metadata.constructorName}</div> ${metadata.constructorInput}
+      <div class=${css.constructorFn}>
+        <div class=${css.contractName}>${metadata.constructorName}</div> ${metadata.constructorInput}
+      </div>
+      <div class=${css.functions}>${metadata.functions.map(fn => { if (fn.type === "function") return functions(fn)})}</div>
     </div>
-    <div class=${css.functions}>${metadata.functions.map(fn => { if (fn.type === "function") return functions(fn)})}</div>
-    </div>
-    `
+  `
 
-    function functions (fn) {
-      var label = fn.stateMutability
-      var fnName = bel`<a title="${glossary(label)}" class=${css.fnName}>${fn.name}</a>`
-      var toggleIcon = bel`<div class=${css.toggleIcon}><i class="fa fa-minus-circle"></i></div>`
-      var functionClass = css[label]
-      return bel` <div class="${functionClass} ${css.function}">
+  function functions (fn) {
+    var label = fn.stateMutability
+    var fnName = bel`<a title="${glossary(label)}" class=${css.fnName}>${fn.name}</a>`
+    var toggleIcon = bel`<div class=${css.toggleIcon}><i class="fa fa-minus-circle"></i></div>`
+    var functionClass = css[label]
+    return bel` <div class="${functionClass} ${css.function}">
       <div class=${css.title} onclick=${e=>toggle(e)}>${fnName}  ${toggleIcon}</div>
       <ul class=${css.ulVisible}>${fn.inputs}</ul>
-      </div>`
-    }
+    </div>`
+  }
 
-    function toggle (e) {
-      var fn = e.currentTarget.parentNode
-      var params = fn.children[1]
-      var toggleContainer = e.currentTarget.children[1]
-      var icon = toggleContainer.children[0]
-      toggleContainer.removeChild(icon)
-      if (params.className === css.ulVisible.toString()) {
-        toggleContainer.appendChild(bel`<i class="fa fa-plus-circle">`)
-        params.classList.remove(css.ulVisible)
-        params.classList.add(css.ulHidden)
-        // remove border and margin-bottom: 0;
-        fn.style.border = 'none'
-        fn.style.marginBottom = 0
-      } else {
-        toggleContainer.appendChild(bel`<i class="fa fa-minus-circle">`)
-        params.classList.remove(css.ulHidden)
-        params.classList.add(css.ulVisible)
-        // add border and margin-bottom: 4em;
-        console.log(fn)
-        fn.style.border = `1px solid ${colors.whiteSmoke}`
-        fn.style.marginBottom = '4em'
-      }
+  function toggle (e) {
+    var fn = e.currentTarget.parentNode
+    var params = fn.children[1]
+    var toggleContainer = e.currentTarget.children[1]
+    var icon = toggleContainer.children[0]
+    toggleContainer.removeChild(icon)
+    if (params.className === css.ulVisible.toString()) {
+      toggleContainer.appendChild(bel`<i class="fa fa-plus-circle">`)
+      params.classList.remove(css.ulVisible)
+      params.classList.add(css.ulHidden)
+      // remove border and margin-bottom: 0;
+      fn.style.border = 'none'
+      fn.style.marginBottom = 0
+    } else {
+      toggleContainer.appendChild(bel`<i class="fa fa-minus-circle">`)
+      params.classList.remove(css.ulHidden)
+      params.classList.add(css.ulVisible)
+      // add border and margin-bottom: 4em;
+      console.log(fn)
+      fn.style.border = `1px solid ${colors.whiteSmoke}`
+      fn.style.marginBottom = '4em'
     }
-  } else {
-    var html = bel`
-    <div class=${css.preview}>
-      <div class=${css.error}>
-        ${opts.metadata}
-      </div>
-    </div>
-    `
   }
 
   return html
 }
 
-},{"bel":41,"check-input-type":70,"csjs-inject":44,"glossary":71}],74:[function(require,module,exports){
-const indexedDB = window.indexedDB
-const console = window.console
-
-module.exports = kvidb
-
-const dbname = 'kvidb'
-// const dbopts = { keyPath: 'key' }
-const version = 1
-
-function kvidb (opts) {
-  const name = opts ? opts.name || ('' + opts) : 'store'
-  const scope = `${dbname}-${name}`
-  var IDB
-  const makeDB = done => {
-    var idb = indexedDB.open(dbname, version)
-    idb.onerror = e => console.error(`[${dbname}]`, idb.error)
-    idb.onupgradeneeded = () => idb.result.createObjectStore(scope/*, dbopts*/)
-    idb.onsuccess = () => done(IDB = idb.result)
-  }
-  const use = (mode, done) => {
-    const next = (IDB, tx) => (tx = IDB.transaction([scope], mode),
-      done(tx.objectStore(scope), tx))
-    IDB ? next(IDB) : makeDB(next)
-  }
-  const api = {
-    get: (key, done) => use('readonly', (store, tx) => {
-      const req = store.get('' + key)
-      tx.oncomplete = e => next(req.error, req.result)
-      const next = (e, x) => {
-        e ? done(e) : x === undefined ? done(`key "${key}" is undefined`)
-        : done(null, x)
-      }
-    }),
-    put: (key, val, done) => val === undefined ? done('`value` is undefined')
-      : use('readwrite', (store, tx) => {
-        const req = store.put(val, '' + key)
-        tx.oncomplete = e => done(req.error, !req.error)
-    }),
-    del: (key, done) => api.get('' + key, (e, x) => {
-      e ? done(e) : use('readwrite', (store, tx) => {
-        const req = store.delete('' + key)
-        tx.oncomplete = e => done(req.error, !req.error)
-      })
-    }),
-    clear: done => use('readwrite',  (store, tx) => {
-      const req = store.clear()
-      tx.oncomplete = e => done(req.error, !req.error)
-    }),
-    length: done => use('readwrite',  (store, tx) => {
-      const req = store.count()
-      tx.oncomplete = e => done(req.error, req.result)
-    }),
-    close: done => (IDB ? IDB.close() : makeDB(IDB => IDB.close()), done(null, true)),
-    batch: (ops, done) => done('@TODO: implement `.batch(...)`'),
-    keys: done => use('readonly', (store, tx, keys = []) => {
-      const openCursor = (store.openKeyCursor || store.openCursor)
-      const req = openCursor.call(store)
-      tx.oncomplete = e => done(req.error, req.error ? undefined : keys)
-      req.onsuccess = () => {
-        const x = req.result
-        if (x) (keys.push(x.key), x.continue())
-      }
-    })
-    // key: (n, done) => (n < 0) ? done(null) : use('readonly', store => {
-    //   var advanced = false
-    //   var req = store.openCursor()
-    //   req.onsuccess = () => {
-    //     var cursor = req.result
-    //     if (!cursor) return
-    //     if (n === 0 || advanced) return // Either 1) maybe return first key, or 2) we've got the nth key
-    //     advanced = true // Otherwise, ask the cursor to skip ahead n records
-    //     cursor.advance(n)
-    //   }
-    //   req.onerror = () => (console.error('Error in asyncStorage.key(): '), req.error.name)
-    //   req.onsuccess = () => done((req.result || {}).key || null)
-    // }),
-    // This would be store.getAllKeys(), but it isn't supported by Edge or Safari.
-    // And openKeyCursor isn't supported by Safari.
-    // tx.oncomplete = () => done(null, keys)
-  }
-  return api
-}
-
-},{}],75:[function(require,module,exports){
+},{"bel":3,"check-input-type":45,"csjs-inject":17,"glossary":46}],49:[function(require,module,exports){
 const kvidb = require('kv-idb')
 const cache = kvidb('store-solcjs')
 
@@ -16074,7 +15805,7 @@ function cacheFetch ({ cache, url, caching, transform, timestamp }, done) {
   }).catch(e => console.error('[error]', e))
 }
 
-},{"kv-idb":74}],76:[function(require,module,exports){
+},{"kv-idb":43}],50:[function(require,module,exports){
 // //////////////////////////////////////////////////////////////////
 // var Compiler = require('./src/compiler/compiler')
 // var CompilerInput = require('./src/compiler/compiler-input')
@@ -16171,7 +15902,7 @@ function compiler (solc) {
   return api
 }
 
-},{"./wrapper.js":79}],77:[function(require,module,exports){
+},{"./wrapper.js":53}],51:[function(require,module,exports){
 
 module.exports = { linkBytecode, findLinkReferences }
 
@@ -16231,7 +15962,7 @@ function findLinkReferences (bytecode) {
   return linkReferences
 }
 
-},{}],78:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var linker = require('./linker.js');
 
 /// Translate old style version numbers to semver.
@@ -16428,7 +16159,7 @@ module.exports = {
   prettyPrintLegacyAssemblyJSON: prettyPrintLegacyAssemblyJSON
 };
 
-},{"./linker.js":77}],79:[function(require,module,exports){
+},{"./linker.js":51}],53:[function(require,module,exports){
 var translate = require('./translate.js')
 var linker = require('./linker.js')
 
@@ -16573,7 +16304,7 @@ function wrapper (soljson) {
   }
 }
 
-},{"./linker.js":77,"./translate.js":78}],80:[function(require,module,exports){
+},{"./linker.js":51,"./translate.js":52}],54:[function(require,module,exports){
 const ajax = require('ajax-cache')
 const baseURL = 'https://solc-bin.ethereum.org/bin'
 // const baseURL = 'https://ethereum.github.io/solc-bin/bin'
@@ -16659,7 +16390,7 @@ function processList (json) {
   return lists
 }
 
-},{"ajax-cache":75}],81:[function(require,module,exports){
+},{"ajax-cache":49}],55:[function(require,module,exports){
 const ajax = require('ajax-cache')
 const solcwrapper = require('solc-wrapper')
 const version2url = require('version2url')
@@ -16715,4 +16446,290 @@ function load (sourcecode) {
   return compiler
 }
 
-},{"ajax-cache":75,"solc-wrapper":76,"version2url":80}]},{},[1]);
+},{"ajax-cache":49,"solc-wrapper":50,"version2url":54}],56:[function(require,module,exports){
+const bel = require('bel')
+const csjs = require('csjs-inject')
+const logo = require('play-logo')
+
+var opts = { urls: [], colors: ['darkcyan', 'pink', 'white'] }
+
+module.exports = menubar
+
+function menubar () {
+  return bel`
+    <div class=${css.menubar}>
+      <div class=${css.navbar}>
+        <button class=${css.btn} onclick=${showEditor}>editor</button>
+        <button class=${css.btn} onclick=${showBoth}>both</button>
+        <button class=${css.btn} onclick=${showPreview}>preview</button>
+      </div>
+      <div class=${css.logo}>${logo(opts)}</div>
+    </div>`
+}
+function showEditor () {
+  console.log('@TODO: show editor only')
+}
+function showBoth () {
+  console.log('@TODO: show editor and preview')
+}
+function showPreview () {
+  console.log('@TODO: show preview')
+}
+const css = csjs`
+.navbar {
+  margin: 0;
+}
+.btn {
+  margin: 0 2px;
+}
+.logo {
+  width: 60px;
+  height: 60px;
+  margin-right: 10px;
+}
+.menubar {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px;
+  background-color: yellow;
+}`
+
+},{"bel":3,"csjs-inject":17,"play-logo":44}],57:[function(require,module,exports){
+const bel = require('bel')
+const csjs = require('csjs-inject')
+
+module.exports = tiler
+
+function tiler (strings, ...args) {
+  var mosaic = parse(strings, args)
+  var el = template(mosaic)
+  el.length = mosaic.length
+  mosaic.reduce((el, val, key) => (el[key] = val, el), el)
+  return el
+}
+function template (mosaic) {
+  var opts = mosaic[0]
+  var args = mosaic.slice(1)
+  var cmd = opts.cmd
+  if (cmd === 'tab') return tab(opts, args)
+  if (cmd === 'col' || cmd === 'row') return tile(cmd, args)
+  return command(opts, args)
+  // console.log(opts)
+  // for (var i = 1, len = mosaic.length; i < len; i++) {
+  //   var item = mosaic[i]
+  //
+  //   console.log(mosaic[i])
+  // }
+  // console.log('----------')
+  // return bel`
+  //   <div class=${css.tilemosaic}>
+  //     ${'menu()'}
+  //     ${'elements.map(tab)'}
+  //   </div>`
+}
+function tile (cmd, args) {
+  return bel`
+    <div class="${css.tile} ${cmd === 'col' ? css.col : css.row}">
+      ${args.map(item => template(item))}
+    </div>`
+}
+function tab ({ active = 1 }, args) {
+  var element = args[active - 1].el
+  var names = args.map(item => item.name)
+  var container = bel`<div class=${css.container}>${element}</div>`
+  return bel`
+    <div class=${css.tab}>
+      ${menu(names, active - 1, args, container)}
+      ${container}
+    </div>`
+}
+function menu (names, active, args, container) {
+  var elements = names.map((name, i) => bel`
+    <a class=${css.tabname} onclick=${e => onclick(i)}>${name}</a>
+  `)
+  elements[active].classList.add(css.tabactive)
+  return bel`
+    <div class=${css.menu}>
+      ${elements}
+    </div>`
+  function onclick (i) {
+    elements[active].classList.remove(css.tabactive)
+    active = i
+    elements[active].classList.add(css.tabactive)
+    // debugger
+    container.innerHTML = ''
+    container.appendChild(args[i].el)
+  }
+}
+function command (opts, args) {
+  console.log(opts, args)
+  console.error('@TODO: implement custom commands')
+}
+function parse (strings, args) {
+  var editor = args[0]
+  var output = args[1]
+  var scapp = args[2]
+  var navbar = args[3]
+  return [
+    { cmd: 'col' },
+      [{cmd: 'row'},
+      [{cmd: 'tab', active: 1 }, editor, output],
+      [{cmd: 'tab'}, scapp]
+    ],
+    [{cmd: 'tab'}, navbar]
+  ]
+}
+const css = csjs`
+  .tile {
+    display: flex;
+    position: relative;
+    box-sizing: border-box;
+    overflow: auto;
+  }
+  .tab {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    background-color: green;
+  }
+  .menu {
+    padding: 5px 5px 0px;
+    height: 23px;
+  }
+  .tabname {
+    margin: 0px 3px;
+    padding: 3px 3px 0px 3px;
+    border: 1px dotted white;
+    background-color: grey;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tabactive {
+    border-bottom: 1px solid grey;
+    color: white;
+  }
+  .container {
+    height: calc(100% - 23px);
+    background-color: grey;
+  }
+  .col {
+    flex-direction: column;
+    padding: 5px;
+    background-color: red;
+  }
+  .row {
+    flex-direction: row;
+    padding: 5px;
+    background-color: blue;
+  }
+`
+
+},{"bel":3,"csjs-inject":17}],58:[function(require,module,exports){
+const bel = require('bel')
+const csjs = require('csjs-inject')
+
+const solcjs = require('solc-js')
+const smartcontract = require('smartcontract-app')
+const codingeditor = require('coding-editor')
+
+const tiler = require('tiler')
+
+const menubar = require('menubar')
+
+module.exports = playeditor
+
+function playeditor (opts = {}) {
+  const ed = {
+    name: 'contract.sol',
+    el: codingeditor({
+      value: `
+contract Mortal {
+    /* Define variable owner of the type address */
+    address owner;
+
+    /* This function is executed at initialization and sets the owner of the contract */
+    function Mortal() { owner = msg.sender; }
+
+    /* Function to recover the funds on the contract */
+    function kill() { if (msg.sender == owner) selfdestruct(owner); }
+}
+
+contract Greeter is Mortal {
+    /* Define variable greeting of the type string */
+    string greeting;
+
+    /* This runs when the contract is executed */
+    function Greeter(string _greeting) public {
+        greeting = _greeting;
+    }
+
+    /* Main function */
+    function greet() constant returns (string) {
+        return greeting;
+    }
+}
+      `,
+      lineNumbers: true,
+    }),
+  }
+  var compiler
+  solcjs.version2url((err, select) => {
+    var latest = select.releases[0]
+    select(latest, (err, url) => {
+      solcjs(url, (err, solc) => {
+        compiler = solc
+        update()
+      })
+    })
+  })
+  function update () {
+    if (compiler) {
+      var sourcecode = ed.el.api.getValue()
+      var id = setTimeout(() => {
+        var metadata = compiler.compile(sourcecode)
+        // console.log(metadata)
+        var el = smartcontract({ metadata })
+        scapp.el.innerHTML = ''
+        scapp.el.appendChild(el)
+        output.el.textContent = JSON.stringify(metadata)
+      }, 0)
+    }
+  }
+  ed.el.api.on('change', debounce((api) => update()))
+  function debounce (fn) {
+    const wait = 100
+    var timeout, context, args
+    const exec = () => {
+      fn.apply(context, args)
+      timeout = undefined
+    }
+    return function () {
+      context = this
+      args = arguments
+      if (timeout) return
+      timeout = setTimeout(exec, wait)
+    }
+  }
+  const out = { el: bel`<p>OUTPUT</b>`, name: 'output' }
+  const sc = { el: bel`<div></div>`, name: 'preview' }
+  const mb = { el: menubar(), name: 'navbar' }
+  const mosaic = tiler`
+    [${ed}] ${out} | ${sc}
+    ${mb}`
+  const [,[,[,editor, output],[,scapp]],[,navbar]] = Array.from(mosaic)
+  return bel`<div class=${css.playeditor}>${mosaic}</div>`
+}
+
+const css = csjs`
+  .playeditor {
+    background-color: pink;
+    height: 100%;
+    width: 100%;
+  }
+`
+
+},{"bel":3,"coding-editor":13,"csjs-inject":17,"menubar":56,"smartcontract-app":48,"solc-js":55,"tiler":57}]},{},[1]);
