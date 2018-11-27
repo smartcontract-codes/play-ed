@@ -17,31 +17,27 @@ function playeditor (opts = {}, theme = defaultTheme) {
     name: opts.name || 'contract.sol',
     el: codingeditor({
       value: opts.value || `
-      pragma solidity ^0.4.17;
-contract Mortal {
-    /* Define variable owner of the type address */
-    address owner;
-
-    /* This function is executed at initialization and sets the owner of the contract */
-    function Mortal() { owner = msg.sender; }
-
-    /* Function to recover the funds on the contract */
-    function kill() { if (msg.sender == owner) selfdestruct(owner); }
-}
-
-contract Greeter is Mortal {
-    /* Define variable greeting of the type string */
-    string greeting;
-
-    /* This runs when the contract is executed */
-    function Greeter(string _greeting) public {
-        greeting = _greeting;
-    }
-
-    /* Main function */
-    function greet() constant returns (string) {
-        return greeting;
-    }
+pragma solidity ^0.4.17;
+contract Coin {
+  address minter;
+  string name;
+  mapping (address => uint) balances;
+  function Coin(string _name) {
+    _name = name;
+    minter = msg.sender;
+  }
+  function mint(address owner, uint amount) {
+    if (msg.sender != minter) return;
+    balances[owner] += amount;
+  }
+  function send(address receiver, uint amount) {
+    if (balances[msg.sender] < amount) return;
+    balances[msg.sender] -= amount;
+    balances[receiver] += amount;
+  }
+  function queryBalance(address addr) constant returns (uint balance) {
+    return balances[addr];
+  }
 }
       `,
       lineNumbers: true,
