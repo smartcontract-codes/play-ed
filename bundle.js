@@ -14429,16 +14429,20 @@ function editor (opts = editor.defaults, theme) {
     smartIndent: true,
     tabSize: 2,
     indentUnit: 2,
-    // theme: 'mistakes' // borrowed from mistakes.io
+    // theme: 'liquibyte', // THEME1
+    // theme: 'ambiance', // THEME2
+    // theme: 'erlang-dark', // THEME3
+    theme: 'play-dark', // THEME4
     updateInterval: 500,
     dragAndDrop: true
   }
   const css = style(theme)
   // codemirror(place: Element|fn(Element), ?option: object)
-  const api = codemirror(document.createElement('div'))
+  const api = codemirror(document.createElement('div'), defaults)
 
   Object.keys(opts).forEach(key => api.setOption(key, opts[key]))
-  const el = bel`<div class=${css.editor}>${api.getWrapperElement()}</div>`
+  // const el = bel`<div class=${css.editor}>${api.getWrapperElement()}</div>`
+  const el = api.getWrapperElement()
   // ALTERNATIVE:
   // var myCodeMirror = CodeMirror(function (element) {
   //   document.body.appendChild(element)
@@ -14560,6 +14564,10 @@ const style = document.createElement('style')
 style.setAttribute('class', 'codemirror')
 document.head.appendChild(style)
 
+const theme = document.createElement('style')
+theme.setAttribute('class', 'theme')
+document.head.appendChild(theme)
+
 module.exports = (THEMES => (theme, key = JSON.stringify(theme)) =>{
   return THEMES.get(key) || THEMES.set(key, defaults(theme)).get(key)
 } // @TODO: maybe use "WeakMap" instead? ...and init on first use?
@@ -14578,406 +14586,457 @@ const defaults = ({
       flex-grow: 1;
       align-items: center;
     }`
+  // MORE JAVASCRIPT THEMES:
+  // https://github.com/codemirror/CodeMirror/tree/ed8dfeb5e2ed25b5dd1f1eccc7b757ca6dbd118d/theme
+  // theme.textContent = require('./theme1.js')({
+  // theme.textContent = require('./theme2.js')({
+  // theme.textContent = require('./theme3.js')({
+  theme.textContent = require('./theme4.js')({
+    color_bgEditor,
+    color_bgLinebar,
+    color_seperator
+  })
   style.textContent = `
-    /* BASICS */
+  /* BASICS */
 
-    .CodeMirror {
-      /* Set height, width, borders, and global font properties here */
-      font-family: monospace;
-      height: 300px;
-      color: black;
-      direction: ltr;
-    }
+  .CodeMirror {
+    /* Set height, width, borders, and global font properties here */
+    font-family: monospace;
+    height: 300px;
+    color: black;
+    direction: ltr;
+  }
 
-    /* PADDING */
+  /* PADDING */
 
-    .CodeMirror-lines {
-      padding: 4px 0; /* Vertical padding around content */
-    }
-    .CodeMirror pre {
-      padding: 0 4px; /* Horizontal padding of content */
-    }
+  .CodeMirror-lines {
+    padding: 4px 0; /* Vertical padding around content */
+  }
+  .CodeMirror pre {
+    padding: 0 4px; /* Horizontal padding of content */
+  }
 
-    .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
-      background-color: white; /* The little square between H and V scrollbars */
-    }
+  .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+    background-color: white; /* The little square between H and V scrollbars */
+  }
 
-    /* GUTTER */
+  /* GUTTER */
 
-    .CodeMirror-gutters {
-      border-right: 2px solid ${color_seperator};
-      background-color: ${color_bgLinebar};
-      white-space: nowrap;
-    }
-    .CodeMirror-linenumbers {}
-    .CodeMirror-linenumber {
-      padding: 0 3px 0 5px;
-      min-width: 20px;
-      text-align: right;
-      color: #999;
-      white-space: nowrap;
-    }
+  .CodeMirror-gutters {
+    border-right: 2px solid ${color_seperator};
+    background-color: ${color_bgLinebar};
+    white-space: nowrap;
+  }
+  .CodeMirror-linenumbers {}
+  .CodeMirror-linenumber {
+    padding: 0 3px 0 5px;
+    min-width: 20px;
+    text-align: right;
+    color: #999;
+    white-space: nowrap;
+  }
 
-    .CodeMirror-guttermarker { color: black; }
-    .CodeMirror-guttermarker-subtle { color: #999; }
+  .CodeMirror-guttermarker { color: black; }
+  .CodeMirror-guttermarker-subtle { color: #999; }
 
-    /* CURSOR */
+  /* CURSOR */
 
-    .CodeMirror-cursor {
-      border-left: 1px solid black;
-      border-right: none;
-      width: 0;
-    }
-    /* Shown when moving in bi-directional text */
-    .CodeMirror div.CodeMirror-secondarycursor {
-      border-left: 1px solid silver;
-    }
-    .cm-fat-cursor .CodeMirror-cursor {
-      width: auto;
-      border: 0 !important;
-      background: #7e7;
-    }
-    .cm-fat-cursor div.CodeMirror-cursors {
-      z-index: 1;
-    }
-    .cm-fat-cursor-mark {
-      background-color: rgba(20, 255, 20, 0.5);
-      -webkit-animation: blink 1.06s steps(1) infinite;
-      -moz-animation: blink 1.06s steps(1) infinite;
-      animation: blink 1.06s steps(1) infinite;
-    }
-    .cm-animate-fat-cursor {
-      width: auto;
-      border: 0;
-      -webkit-animation: blink 1.06s steps(1) infinite;
-      -moz-animation: blink 1.06s steps(1) infinite;
-      animation: blink 1.06s steps(1) infinite;
-      background-color: #7e7;
-    }
-    @-moz-keyframes blink {
-      0% {}
-      50% { background-color: transparent; }
-      100% {}
-    }
-    @-webkit-keyframes blink {
-      0% {}
-      50% { background-color: transparent; }
-      100% {}
-    }
-    @keyframes blink {
-      0% {}
-      50% { background-color: transparent; }
-      100% {}
-    }
+  .CodeMirror-cursor {
+    border-left: 1px solid black;
+    border-right: none;
+    width: 0;
+  }
+  /* Shown when moving in bi-directional text */
+  .CodeMirror div.CodeMirror-secondarycursor {
+    border-left: 1px solid silver;
+  }
+  .cm-fat-cursor .CodeMirror-cursor {
+    width: auto;
+    border: 0 !important;
+    background: #7e7;
+  }
+  .cm-fat-cursor div.CodeMirror-cursors {
+    z-index: 1;
+  }
+  .cm-fat-cursor-mark {
+    background-color: rgba(20, 255, 20, 0.5);
+    -webkit-animation: blink 1.06s steps(1) infinite;
+    -moz-animation: blink 1.06s steps(1) infinite;
+    animation: blink 1.06s steps(1) infinite;
+  }
+  .cm-animate-fat-cursor {
+    width: auto;
+    border: 0;
+    -webkit-animation: blink 1.06s steps(1) infinite;
+    -moz-animation: blink 1.06s steps(1) infinite;
+    animation: blink 1.06s steps(1) infinite;
+    background-color: #7e7;
+  }
+  @-moz-keyframes blink {
+    0% {}
+    50% { background-color: transparent; }
+    100% {}
+  }
+  @-webkit-keyframes blink {
+    0% {}
+    50% { background-color: transparent; }
+    100% {}
+  }
+  @keyframes blink {
+    0% {}
+    50% { background-color: transparent; }
+    100% {}
+  }
 
-    /* Can style cursor different in overwrite (non-insert) mode */
-    .CodeMirror-overwrite .CodeMirror-cursor {}
+  /* Can style cursor different in overwrite (non-insert) mode */
+  .CodeMirror-overwrite .CodeMirror-cursor {}
 
-    .cm-tab { display: inline-block; text-decoration: inherit; }
+  .cm-tab { display: inline-block; text-decoration: inherit; }
 
-    .CodeMirror-rulers {
-      position: absolute;
-      left: 0; right: 0; top: -50px; bottom: -20px;
-      overflow: hidden;
-    }
-    .CodeMirror-ruler {
-      border-left: 1px solid #ccc;
-      top: 0; bottom: 0;
-      position: absolute;
-    }
+  .CodeMirror-rulers {
+    position: absolute;
+    left: 0; right: 0; top: -50px; bottom: -20px;
+    overflow: hidden;
+  }
+  .CodeMirror-ruler {
+    border-left: 1px solid #ccc;
+    top: 0; bottom: 0;
+    position: absolute;
+  }
 
-    /* DEFAULT THEME */
+  /* DEFAULT THEME */
 
-    .cm-s-default .cm-header {color: blue;}
-    .cm-s-default .cm-quote {color: #090;}
-    .cm-negative {color: #d44;}
-    .cm-positive {color: #292;}
-    .cm-header, .cm-strong {font-weight: bold;}
-    .cm-em {font-style: italic;}
-    .cm-link {text-decoration: underline;}
-    .cm-strikethrough {text-decoration: line-through;}
+  .cm-s-default .cm-header {color: blue;}
+  .cm-s-default .cm-quote {color: #090;}
+  .cm-negative {color: #d44;}
+  .cm-positive {color: #292;}
+  .cm-header, .cm-strong {font-weight: bold;}
+  .cm-em {font-style: italic;}
+  .cm-link {text-decoration: underline;}
+  .cm-strikethrough {text-decoration: line-through;}
 
-    .cm-s-default .cm-keyword {color: #708;}
-    .cm-s-default .cm-atom {color: #219;}
-    .cm-s-default .cm-number {color: #164;}
-    .cm-s-default .cm-def {color: #00f;}
-    .cm-s-default .cm-variable,
-    .cm-s-default .cm-punctuation,
-    .cm-s-default .cm-property,
-    .cm-s-default .cm-operator {}
-    .cm-s-default .cm-variable-2 {color: #05a;}
-    .cm-s-default .cm-variable-3, .cm-s-default .cm-type {color: #085;}
-    .cm-s-default .cm-comment {color: #a50;}
-    .cm-s-default .cm-string {color: #a11;}
-    .cm-s-default .cm-string-2 {color: #f50;}
-    .cm-s-default .cm-meta {color: #555;}
-    .cm-s-default .cm-qualifier {color: #555;}
-    .cm-s-default .cm-builtin {color: #30a;}
-    .cm-s-default .cm-bracket {color: #997;}
-    .cm-s-default .cm-tag {color: #170;}
-    .cm-s-default .cm-attribute {color: #00c;}
-    .cm-s-default .cm-hr {color: #999;}
-    .cm-s-default .cm-link {color: #00c;}
+  .cm-s-default .cm-keyword {color: #708;}
+  .cm-s-default .cm-atom {color: #219;}
+  .cm-s-default .cm-number {color: #164;}
+  .cm-s-default .cm-def {color: #00f;}
+  .cm-s-default .cm-variable,
+  .cm-s-default .cm-punctuation,
+  .cm-s-default .cm-property,
+  .cm-s-default .cm-operator {}
+  .cm-s-default .cm-variable-2 {color: #05a;}
+  .cm-s-default .cm-variable-3, .cm-s-default .cm-type {color: #085;}
+  .cm-s-default .cm-comment {color: #a50;}
+  .cm-s-default .cm-string {color: #a11;}
+  .cm-s-default .cm-string-2 {color: #f50;}
+  .cm-s-default .cm-meta {color: #555;}
+  .cm-s-default .cm-qualifier {color: #555;}
+  .cm-s-default .cm-builtin {color: #30a;}
+  .cm-s-default .cm-bracket {color: #997;}
+  .cm-s-default .cm-tag {color: #170;}
+  .cm-s-default .cm-attribute {color: #00c;}
+  .cm-s-default .cm-hr {color: #999;}
+  .cm-s-default .cm-link {color: #00c;}
 
-    .cm-s-default .cm-error {color: #f00;}
-    .cm-invalidchar {color: #f00;}
+  .cm-s-default .cm-error {color: #f00;}
+  .cm-invalidchar {color: #f00;}
 
-    .CodeMirror-composing { border-bottom: 2px solid; }
+  .CodeMirror-composing { border-bottom: 2px solid; }
 
-    /* Default styles for common addons */
+  /* Default styles for common addons */
 
-    div.CodeMirror span.CodeMirror-matchingbracket {color: #0b0;}
-    div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
-    .CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }
-    .CodeMirror-activeline-background {background: #e8f2ff;}
+  div.CodeMirror span.CodeMirror-matchingbracket {color: #0b0;}
+  div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
+  .CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }
+  .CodeMirror-activeline-background {background: #e8f2ff;}
 
-    /* STOP */
+  /* STOP */
 
-    /* The rest of this file contains styles related to the mechanics of
-       the editor. You probably shouldn't touch them. */
+  /* The rest of this file contains styles related to the mechanics of
+     the editor. You probably shouldn't touch them. */
 
-    .CodeMirror {
-      position: relative;
-      overflow: hidden;
-      background: ${color_bgEditor};
-    }
+  .CodeMirror {
+    position: relative;
+    overflow: hidden;
+    background: ${color_bgEditor};
+  }
 
-    .CodeMirror-scroll {
-      overflow: scroll !important; /* Things will break if this is overridden */
-      /* 30px is the magic margin used to hide the element's real scrollbars */
-      /* See overflow: hidden in .CodeMirror */
-      margin-bottom: -30px; margin-right: -30px;
-      padding-bottom: 30px;
-      height: 100%;
-      outline: none; /* Prevent dragging from highlighting the element */
-      position: relative;
-    }
-    .CodeMirror-sizer {
-      position: relative;
-      border-right: 30px solid transparent;
-    }
+  .CodeMirror-scroll {
+    overflow: scroll !important; /* Things will break if this is overridden */
+    /* 30px is the magic margin used to hide the element's real scrollbars */
+    /* See overflow: hidden in .CodeMirror */
+    margin-bottom: -30px; margin-right: -30px;
+    padding-bottom: 30px;
+    height: 100%;
+    outline: none; /* Prevent dragging from highlighting the element */
+    position: relative;
+  }
+  .CodeMirror-sizer {
+    position: relative;
+    border-right: 30px solid transparent;
+  }
 
-    /* The fake, visible scrollbars. Used to force redraw during scrolling
-       before actual scrolling happens, thus preventing shaking and
-       flickering artifacts. */
-    .CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
-      position: absolute;
-      z-index: 6;
-      display: none;
-    }
-    .CodeMirror-vscrollbar {
-      right: 0; top: 0;
-      overflow-x: hidden;
-      overflow-y: scroll;
-    }
-    .CodeMirror-hscrollbar {
-      bottom: 0; left: 0;
-      overflow-y: hidden;
-      overflow-x: scroll;
-    }
-    .CodeMirror-scrollbar-filler {
-      right: 0; bottom: 0;
-    }
-    .CodeMirror-gutter-filler {
-      left: 0; bottom: 0;
-    }
+  /* The fake, visible scrollbars. Used to force redraw during scrolling
+     before actual scrolling happens, thus preventing shaking and
+     flickering artifacts. */
+  .CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+    position: absolute;
+    z-index: 6;
+    display: none;
+  }
+  .CodeMirror-vscrollbar {
+    right: 0; top: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+  .CodeMirror-hscrollbar {
+    bottom: 0; left: 0;
+    overflow-y: hidden;
+    overflow-x: scroll;
+  }
+  .CodeMirror-scrollbar-filler {
+    right: 0; bottom: 0;
+  }
+  .CodeMirror-gutter-filler {
+    left: 0; bottom: 0;
+  }
 
-    .CodeMirror-gutters {
-      position: absolute; left: 0; top: 0;
-      min-height: 100%;
-      z-index: 3;
-    }
-    .CodeMirror-gutter {
-      white-space: normal;
-      height: 100%;
-      display: inline-block;
-      vertical-align: top;
-      margin-bottom: -30px;
-    }
-    .CodeMirror-gutter-wrapper {
-      position: absolute;
-      z-index: 4;
-      background: none !important;
-      border: none !important;
-    }
-    .CodeMirror-gutter-background {
-      position: absolute;
-      top: 0; bottom: 0;
-      z-index: 4;
-    }
-    .CodeMirror-gutter-elt {
-      position: absolute;
-      cursor: default;
-      z-index: 4;
-    }
-    .CodeMirror-gutter-wrapper ::selection { background-color: transparent }
-    .CodeMirror-gutter-wrapper ::-moz-selection { background-color: transparent }
+  .CodeMirror-gutters {
+    position: absolute; left: 0; top: 0;
+    min-height: 100%;
+    z-index: 3;
+  }
+  .CodeMirror-gutter {
+    white-space: normal;
+    height: 100%;
+    display: inline-block;
+    vertical-align: top;
+    margin-bottom: -30px;
+  }
+  .CodeMirror-gutter-wrapper {
+    position: absolute;
+    z-index: 4;
+    background: none !important;
+    border: none !important;
+  }
+  .CodeMirror-gutter-background {
+    position: absolute;
+    top: 0; bottom: 0;
+    z-index: 4;
+  }
+  .CodeMirror-gutter-elt {
+    position: absolute;
+    cursor: default;
+    z-index: 4;
+  }
+  .CodeMirror-gutter-wrapper ::selection { background-color: transparent }
+  .CodeMirror-gutter-wrapper ::-moz-selection { background-color: transparent }
 
-    .CodeMirror-lines {
-      cursor: text;
-      min-height: 1px; /* prevents collapsing before first draw */
-    }
-    .CodeMirror pre {
-      /* Reset some styles that the rest of the page might have set */
-      -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
-      border-width: 0;
-      background: transparent;
-      font-family: inherit;
-      font-size: inherit;
-      margin: 0;
-      white-space: pre;
-      word-wrap: normal;
-      line-height: inherit;
-      color: inherit;
-      z-index: 2;
-      position: relative;
-      overflow: visible;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-font-variant-ligatures: contextual;
-      font-variant-ligatures: contextual;
-    }
-    .CodeMirror-wrap pre {
-      word-wrap: break-word;
-      white-space: pre-wrap;
-      word-break: normal;
-    }
+  .CodeMirror-lines {
+    cursor: text;
+    min-height: 1px; /* prevents collapsing before first draw */
+  }
+  .CodeMirror pre {
+    /* Reset some styles that the rest of the page might have set */
+    -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
+    border-width: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
+    white-space: pre;
+    word-wrap: normal;
+    line-height: inherit;
+    color: inherit;
+    z-index: 2;
+    position: relative;
+    overflow: visible;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-variant-ligatures: contextual;
+    font-variant-ligatures: contextual;
+  }
+  .CodeMirror-wrap pre {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    word-break: normal;
+  }
 
-    .CodeMirror-linebackground {
-      position: absolute;
-      left: 0; right: 0; top: 0; bottom: 0;
-      z-index: 0;
-    }
+  .CodeMirror-linebackground {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    z-index: 0;
+  }
 
-    .CodeMirror-linewidget {
-      position: relative;
-      z-index: 2;
-      padding: 0.1px; /* Force widget margins to stay inside of the container */
-    }
+  .CodeMirror-linewidget {
+    position: relative;
+    z-index: 2;
+    padding: 0.1px; /* Force widget margins to stay inside of the container */
+  }
 
-    .CodeMirror-widget {}
+  .CodeMirror-widget {}
 
-    .CodeMirror-rtl pre { direction: rtl; }
+  .CodeMirror-rtl pre { direction: rtl; }
 
-    .CodeMirror-code {
-      outline: none;
-    }
+  .CodeMirror-code {
+    outline: none;
+  }
 
-    /* Force content-box sizing for the elements where we expect it */
-    .CodeMirror-scroll,
-    .CodeMirror-sizer,
-    .CodeMirror-gutter,
-    .CodeMirror-gutters,
-    .CodeMirror-linenumber {
-      -moz-box-sizing: content-box;
-      box-sizing: content-box;
-    }
+  /* Force content-box sizing for the elements where we expect it */
+  .CodeMirror-scroll,
+  .CodeMirror-sizer,
+  .CodeMirror-gutter,
+  .CodeMirror-gutters,
+  .CodeMirror-linenumber {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+  }
 
-    .CodeMirror-measure {
-      position: absolute;
-      width: 100%;
-      height: 0;
-      overflow: hidden;
+  .CodeMirror-measure {
+    position: absolute;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+  }
+
+  .CodeMirror-cursor {
+    position: absolute;
+    pointer-events: none;
+  }
+  .CodeMirror-measure pre { position: static; }
+
+  div.CodeMirror-cursors {
+    visibility: hidden;
+    position: relative;
+    z-index: 3;
+  }
+  div.CodeMirror-dragcursors {
+    visibility: visible;
+  }
+
+  .CodeMirror-focused div.CodeMirror-cursors {
+    visibility: visible;
+  }
+
+  .CodeMirror-selected { background: #d9d9d9; }
+  .CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }
+  .CodeMirror-crosshair { cursor: crosshair; }
+  .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }
+  .CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }
+
+  .cm-searching {
+    background-color: #ffa;
+    background-color: rgba(255, 255, 0, .4);
+  }
+
+  /* Used to force a border model for a node */
+  .cm-force-border { padding-right: .1px; }
+
+  @media print {
+    /* Hide the cursor when printing */
+    .CodeMirror div.CodeMirror-cursors {
       visibility: hidden;
     }
+  }
 
-    .CodeMirror-cursor {
-      position: absolute;
-      pointer-events: none;
-    }
-    .CodeMirror-measure pre { position: static; }
+  /* See issue #2901 */
+  .cm-tab-wrap-hack:after { content: ''; }
 
-    div.CodeMirror-cursors {
-      visibility: hidden;
-      position: relative;
-      z-index: 3;
-    }
-    div.CodeMirror-dragcursors {
-      visibility: visible;
-    }
-
-    .CodeMirror-focused div.CodeMirror-cursors {
-      visibility: visible;
-    }
-
-    .CodeMirror-selected { background: #d9d9d9; }
-    .CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }
-    .CodeMirror-crosshair { cursor: crosshair; }
-    .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }
-    .CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }
-
-    .cm-searching {
-      background-color: #ffa;
-      background-color: rgba(255, 255, 0, .4);
-    }
-
-    /* Used to force a border model for a node */
-    .cm-force-border { padding-right: .1px; }
-
-    @media print {
-      /* Hide the cursor when printing */
-      .CodeMirror div.CodeMirror-cursors {
-        visibility: hidden;
-      }
-    }
-
-    /* See issue #2901 */
-    .cm-tab-wrap-hack:after { content: ''; }
-
-    /* Help users use markselection to safely style text background */
-    span.CodeMirror-selectedtext { background: none; }
-  `
+  /* Help users use markselection to safely style text background */
+  span.CodeMirror-selectedtext { background: none; }`
   return css
 }
 
-},{"csjs-inject":14}],36:[function(require,module,exports){
+},{"./theme4.js":36,"csjs-inject":14}],36:[function(require,module,exports){
+module.exports = ({
+  color_bgEditor,
+  color_bgLinebar,
+  color_seperator
+}) => `
+.cm-s-play-dark.CodeMirror { background: ${color_bgEditor}; color: white; }
+.cm-s-play-dark div.CodeMirror-selected { background: #b36539; }
+.cm-s-play-dark .CodeMirror-line::selection, .cm-s-play-dark .CodeMirror-line > span::selection, .cm-s-play-dark .CodeMirror-line > span > span::selection { background: rgba(179, 101, 57, .99); }
+.cm-s-play-dark .CodeMirror-line::-moz-selection, .cm-s-play-dark .CodeMirror-line > span::-moz-selection, .cm-s-play-dark .CodeMirror-line > span > span::-moz-selection { background: rgba(179, 101, 57, .99); }
+.cm-s-play-dark .CodeMirror-gutters { background: ${color_seperator}; border-right: 1px solid ${color_bgLinebar}; }
+.cm-s-play-dark .CodeMirror-guttermarker { color: white; }
+.cm-s-play-dark .CodeMirror-guttermarker-subtle { color: #d0d0d0; }
+.cm-s-play-dark .CodeMirror-linenumber { color: #d0d0d0; }
+.cm-s-play-dark .CodeMirror-cursor { border-left: 1px solid white; }
+
+.cm-s-play-dark span.cm-quote      { color: #ccc; }
+.cm-s-play-dark span.cm-atom       { color: #f133f1; }
+.cm-s-play-dark span.cm-attribute  { color: #ff80e1; }
+.cm-s-play-dark span.cm-bracket    { color: #ff9d00; }
+.cm-s-play-dark span.cm-builtin    { color: #eaa; }
+.cm-s-play-dark span.cm-comment    { color: #77f; }
+.cm-s-play-dark span.cm-def        { color: ${'#9BC53D'}; /* #e7a */ }
+.cm-s-play-dark span.cm-keyword    { color: ${'#14b9d5'}; /* #ffee80 */ }
+.cm-s-play-dark span.cm-meta       { color: #50fefe; }
+.cm-s-play-dark span.cm-number     { color: #ffd0d0; }
+.cm-s-play-dark span.cm-operator   { color: ${'blue'}; /* #d55 */ }
+.cm-s-play-dark span.cm-property   { color: #ccc; }
+.cm-s-play-dark span.cm-qualifier  { color: #ccc; }
+.cm-s-play-dark span.cm-special    { color: #ffbbbb; }
+.cm-s-play-dark span.cm-string     { color: #3ad900; }
+.cm-s-play-dark span.cm-string-2   { color: #ccc; }
+.cm-s-play-dark span.cm-tag        { color: #9effff; }
+.cm-s-play-dark span.cm-variable   { color: ${'white'}; /* #50fe50 */ }
+.cm-s-play-dark span.cm-variable-2 { color: #e0e; }
+.cm-s-play-dark span.cm-variable-3, .cm-s-play-dark span.cm-type { color: #ccc; }
+.cm-s-play-dark span.cm-error      { color: #9d1e15; }
+
+.cm-s-play-dark .CodeMirror-activeline-background { background: #013461; }
+.cm-s-play-dark .CodeMirror-matchingbracket { outline:1px solid grey; color:white !important; }
+`
+
+},{}],37:[function(require,module,exports){
 arguments[4][1][0].apply(exports,arguments)
-},{"dup":1}],37:[function(require,module,exports){
+},{"dup":1}],38:[function(require,module,exports){
 arguments[4][2][0].apply(exports,arguments)
-},{"./appendChild":36,"dup":2,"hyperx":58}],38:[function(require,module,exports){
+},{"./appendChild":37,"dup":2,"hyperx":59}],39:[function(require,module,exports){
 arguments[4][12][0].apply(exports,arguments)
-},{"csjs":43,"dup":12,"insert-css":59}],39:[function(require,module,exports){
+},{"csjs":44,"dup":12,"insert-css":60}],40:[function(require,module,exports){
 arguments[4][13][0].apply(exports,arguments)
-},{"csjs/get-css":42,"dup":13}],40:[function(require,module,exports){
+},{"csjs/get-css":43,"dup":13}],41:[function(require,module,exports){
 arguments[4][14][0].apply(exports,arguments)
-},{"./csjs":38,"./get-css":39,"dup":14}],41:[function(require,module,exports){
+},{"./csjs":39,"./get-css":40,"dup":14}],42:[function(require,module,exports){
 arguments[4][15][0].apply(exports,arguments)
-},{"./lib/csjs":47,"dup":15}],42:[function(require,module,exports){
+},{"./lib/csjs":48,"dup":15}],43:[function(require,module,exports){
 arguments[4][16][0].apply(exports,arguments)
-},{"./lib/get-css":51,"dup":16}],43:[function(require,module,exports){
+},{"./lib/get-css":52,"dup":16}],44:[function(require,module,exports){
 arguments[4][17][0].apply(exports,arguments)
-},{"./csjs":41,"./get-css":42,"dup":17}],44:[function(require,module,exports){
+},{"./csjs":42,"./get-css":43,"dup":17}],45:[function(require,module,exports){
 arguments[4][18][0].apply(exports,arguments)
-},{"dup":18}],45:[function(require,module,exports){
+},{"dup":18}],46:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"./composition":46,"dup":19}],46:[function(require,module,exports){
+},{"./composition":47,"dup":19}],47:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"dup":20}],47:[function(require,module,exports){
+},{"dup":20}],48:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"./build-exports":45,"./composition":46,"./css-extract-extends":48,"./css-key":49,"./extract-exports":50,"./scopeify":56,"dup":21}],48:[function(require,module,exports){
+},{"./build-exports":46,"./composition":47,"./css-extract-extends":49,"./css-key":50,"./extract-exports":51,"./scopeify":57,"dup":21}],49:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"./composition":46,"dup":22}],49:[function(require,module,exports){
+},{"./composition":47,"dup":22}],50:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"dup":23}],50:[function(require,module,exports){
+},{"dup":23}],51:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./regex":53,"dup":24}],51:[function(require,module,exports){
+},{"./regex":54,"dup":24}],52:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./css-key":49,"dup":25}],52:[function(require,module,exports){
+},{"./css-key":50,"dup":25}],53:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"dup":26}],53:[function(require,module,exports){
+},{"dup":26}],54:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"dup":27}],54:[function(require,module,exports){
+},{"dup":27}],55:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"./regex":53,"dup":28}],55:[function(require,module,exports){
+},{"./regex":54,"dup":28}],56:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./base62-encode":44,"./hash-string":52,"dup":29}],56:[function(require,module,exports){
+},{"./base62-encode":45,"./hash-string":53,"dup":29}],57:[function(require,module,exports){
 arguments[4][30][0].apply(exports,arguments)
-},{"./regex":53,"./replace-animations":54,"./scoped-name":55,"dup":30}],57:[function(require,module,exports){
+},{"./regex":54,"./replace-animations":55,"./scoped-name":56,"dup":30}],58:[function(require,module,exports){
 arguments[4][31][0].apply(exports,arguments)
-},{"dup":31}],58:[function(require,module,exports){
+},{"dup":31}],59:[function(require,module,exports){
 arguments[4][32][0].apply(exports,arguments)
-},{"dup":32,"hyperscript-attribute-to-property":57}],59:[function(require,module,exports){
+},{"dup":32,"hyperscript-attribute-to-property":58}],60:[function(require,module,exports){
 arguments[4][33][0].apply(exports,arguments)
-},{"dup":33}],60:[function(require,module,exports){
+},{"dup":33}],61:[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
 
@@ -15149,7 +15208,7 @@ const style = ({
   background-color: ${color_bgPane};
 }`
 
-},{"bel":37,"csjs-inject":40}],61:[function(require,module,exports){
+},{"bel":38,"csjs-inject":41}],62:[function(require,module,exports){
 const playeditor = require('./')
 
 document.title = 'play-editor'
@@ -15251,11 +15310,11 @@ function contract () {
   }`
 }
 
-},{"./":136}],62:[function(require,module,exports){
+},{"./":137}],63:[function(require,module,exports){
 arguments[4][1][0].apply(exports,arguments)
-},{"dup":1}],63:[function(require,module,exports){
+},{"dup":1}],64:[function(require,module,exports){
 arguments[4][2][0].apply(exports,arguments)
-},{"./appendChild":62,"dup":2,"hyperx":88}],64:[function(require,module,exports){
+},{"./appendChild":63,"dup":2,"hyperx":89}],65:[function(require,module,exports){
 ;(function (globalObject) {
   'use strict';
 
@@ -18116,45 +18175,45 @@ arguments[4][2][0].apply(exports,arguments)
   }
 })(this);
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 arguments[4][12][0].apply(exports,arguments)
-},{"csjs":70,"dup":12,"insert-css":99}],66:[function(require,module,exports){
+},{"csjs":71,"dup":12,"insert-css":100}],67:[function(require,module,exports){
 arguments[4][13][0].apply(exports,arguments)
-},{"csjs/get-css":69,"dup":13}],67:[function(require,module,exports){
+},{"csjs/get-css":70,"dup":13}],68:[function(require,module,exports){
 arguments[4][14][0].apply(exports,arguments)
-},{"./csjs":65,"./get-css":66,"dup":14}],68:[function(require,module,exports){
+},{"./csjs":66,"./get-css":67,"dup":14}],69:[function(require,module,exports){
 arguments[4][15][0].apply(exports,arguments)
-},{"./lib/csjs":74,"dup":15}],69:[function(require,module,exports){
+},{"./lib/csjs":75,"dup":15}],70:[function(require,module,exports){
 arguments[4][16][0].apply(exports,arguments)
-},{"./lib/get-css":78,"dup":16}],70:[function(require,module,exports){
+},{"./lib/get-css":79,"dup":16}],71:[function(require,module,exports){
 arguments[4][17][0].apply(exports,arguments)
-},{"./csjs":68,"./get-css":69,"dup":17}],71:[function(require,module,exports){
+},{"./csjs":69,"./get-css":70,"dup":17}],72:[function(require,module,exports){
 arguments[4][18][0].apply(exports,arguments)
-},{"dup":18}],72:[function(require,module,exports){
+},{"dup":18}],73:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"./composition":73,"dup":19}],73:[function(require,module,exports){
+},{"./composition":74,"dup":19}],74:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"dup":20}],74:[function(require,module,exports){
+},{"dup":20}],75:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"./build-exports":72,"./composition":73,"./css-extract-extends":75,"./css-key":76,"./extract-exports":77,"./scopeify":83,"dup":21}],75:[function(require,module,exports){
+},{"./build-exports":73,"./composition":74,"./css-extract-extends":76,"./css-key":77,"./extract-exports":78,"./scopeify":84,"dup":21}],76:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"./composition":73,"dup":22}],76:[function(require,module,exports){
+},{"./composition":74,"dup":22}],77:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"dup":23}],77:[function(require,module,exports){
+},{"dup":23}],78:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./regex":80,"dup":24}],78:[function(require,module,exports){
+},{"./regex":81,"dup":24}],79:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./css-key":76,"dup":25}],79:[function(require,module,exports){
+},{"./css-key":77,"dup":25}],80:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"dup":26}],80:[function(require,module,exports){
+},{"dup":26}],81:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"dup":27}],81:[function(require,module,exports){
+},{"dup":27}],82:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"./regex":80,"dup":28}],82:[function(require,module,exports){
+},{"./regex":81,"dup":28}],83:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./base62-encode":71,"./hash-string":79,"dup":29}],83:[function(require,module,exports){
+},{"./base62-encode":72,"./hash-string":80,"dup":29}],84:[function(require,module,exports){
 arguments[4][30][0].apply(exports,arguments)
-},{"./regex":80,"./replace-animations":81,"./scoped-name":82,"dup":30}],84:[function(require,module,exports){
+},{"./regex":81,"./replace-animations":82,"./scoped-name":83,"dup":30}],85:[function(require,module,exports){
 // This was ported from https://github.com/emn178/js-sha3, with some minor
 // modifications and pruning. It is licensed under MIT:
 //
@@ -18494,7 +18553,7 @@ module.exports = {
   keccak256s: keccak(256),
   keccak512s: keccak(512)
 };
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -18663,7 +18722,7 @@ module.exports = {
   fromWei: fromWei,
   toWei: toWei
 };
-},{"bn.js":86,"number-to-bn":103}],86:[function(require,module,exports){
+},{"bn.js":87,"number-to-bn":104}],87:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -22092,11 +22151,11 @@ module.exports = {
   };
 })(typeof module === 'undefined' || module, this);
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 arguments[4][31][0].apply(exports,arguments)
-},{"dup":31}],88:[function(require,module,exports){
+},{"dup":31}],89:[function(require,module,exports){
 arguments[4][32][0].apply(exports,arguments)
-},{"dup":32,"hyperscript-attribute-to-property":87}],89:[function(require,module,exports){
+},{"dup":32,"hyperscript-attribute-to-property":88}],90:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 var validator = require('solidity-validator')
@@ -22120,7 +22179,7 @@ function displayAddressInput({theme: {classes: css}, type, cb}) {
 
 }
 
-},{"bel":63,"csjs-inject":67,"solidity-validator":119}],90:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68,"solidity-validator":120}],91:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 
@@ -22133,7 +22192,7 @@ function displayAddressInput({theme: {classes: css}, type}) {
       </div>`
 }
 
-},{"bel":63,"csjs-inject":67}],91:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68}],92:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 
@@ -22166,7 +22225,7 @@ function displayBooleanInput({theme: {classes: css, colors}, type}) {
   }
 }
 
-},{"bel":63,"csjs-inject":67}],92:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68}],93:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 var validateInput = require('validate-input')
@@ -22225,7 +22284,7 @@ function displayIntegerInput({theme: {classes: css}, type}) {
 
 }
 
-},{"bel":63,"csjs-inject":67,"validate-input":93}],93:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68,"validate-input":94}],94:[function(require,module,exports){
 module.exports = validateInput
 
 function validateInput ({ type, e }) {
@@ -22240,7 +22299,7 @@ function validateInput ({ type, e }) {
   }
 }
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 
@@ -22253,7 +22312,7 @@ function displayStringInput({theme: {classes: css}, type}) {
     </div>`
 }
 
-},{"bel":63,"csjs-inject":67}],95:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68}],96:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 var inputAddress = require("input-address")
@@ -22328,7 +22387,7 @@ function getParsedArray (type) {
   return arr
 }
 
-},{"bel":63,"csjs-inject":67,"input-address":90,"input-boolean":91,"input-integer":92,"input-string":94,"solidity-validator":119}],96:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68,"input-address":91,"input-boolean":92,"input-integer":93,"input-string":95,"solidity-validator":120}],97:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 var validator = require('solidity-validator')
@@ -22372,7 +22431,7 @@ function displayBooleanInput({theme: {classes: css, colors}, type, cb}) {
   }
 }
 
-},{"bel":63,"csjs-inject":67,"solidity-validator":119}],97:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68,"solidity-validator":120}],98:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 var validator = require('solidity-validator')
@@ -22426,7 +22485,7 @@ function displayIntegerInput({theme: {classes: css}, type, cb}) {
   }
 }
 
-},{"bel":63,"csjs-inject":67,"solidity-validator":119}],98:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68,"solidity-validator":120}],99:[function(require,module,exports){
 var bel = require('bel')
 var csjs = require('csjs-inject')
 var validator = require('solidity-validator')
@@ -22448,9 +22507,9 @@ function displayStringInput({theme: {classes: css}, type, cb}) {
   }
 }
 
-},{"bel":63,"csjs-inject":67,"solidity-validator":119}],99:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68,"solidity-validator":120}],100:[function(require,module,exports){
 arguments[4][33][0].apply(exports,arguments)
-},{"dup":33}],100:[function(require,module,exports){
+},{"dup":33}],101:[function(require,module,exports){
 /**
  * Returns a `Boolean` on whether or not the a `String` starts with '0x'
  * @param {String} str the string input value
@@ -22465,7 +22524,7 @@ module.exports = function isHexPrefixed(str) {
   return str.slice(0, 2) === '0x';
 }
 
-},{}],101:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 const indexedDB = window.indexedDB
 const console = window.console
 
@@ -22549,9 +22608,9 @@ function kvidb (opts) {
   return api
 }
 
-},{}],102:[function(require,module,exports){
-arguments[4][86][0].apply(exports,arguments)
-},{"dup":86}],103:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
+arguments[4][87][0].apply(exports,arguments)
+},{"dup":87}],104:[function(require,module,exports){
 var BN = require('bn.js');
 var stripHexPrefix = require('strip-hex-prefix');
 
@@ -22591,7 +22650,7 @@ module.exports = function numberToBN(arg) {
   throw new Error('[number-to-bn] while converting number ' + JSON.stringify(arg) + ' to BN.js instance, error: invalid number value. Value must be an integer, hex string, BN or BigNumber instance. Note, decimals are not supported.');
 }
 
-},{"bn.js":102,"strip-hex-prefix":128}],104:[function(require,module,exports){
+},{"bn.js":103,"strip-hex-prefix":129}],105:[function(require,module,exports){
 module.exports = logo
 
 function logo (opts) {
@@ -22663,11 +22722,11 @@ function logo (opts) {
   return el.children[0]
 }
 
-},{}],105:[function(require,module,exports){
-module.exports = window.crypto;
 },{}],106:[function(require,module,exports){
+module.exports = window.crypto;
+},{}],107:[function(require,module,exports){
 module.exports = require('crypto');
-},{"crypto":105}],107:[function(require,module,exports){
+},{"crypto":106}],108:[function(require,module,exports){
 var randomHex = function(size, callback) {
     var crypto = require('./crypto.js');
     var isCallback = (typeof callback === 'function');
@@ -22733,7 +22792,7 @@ var randomHex = function(size, callback) {
 
 module.exports = randomHex;
 
-},{"./crypto.js":106}],108:[function(require,module,exports){
+},{"./crypto.js":107}],109:[function(require,module,exports){
 module.exports = word => glossary[word]
 
 var glossary = {
@@ -22743,7 +22802,7 @@ var glossary = {
   nonpayable: `NONPAYABLE FUNCTION`
 }
 
-},{}],109:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 var bel = require("bel")
 var csjs = require("csjs-inject")
 var glossary = require('glossary')
@@ -23291,7 +23350,7 @@ function displayContractUI(opts) {
   }
 }
 
-},{"bel":63,"csjs-inject":67,"glossary":108,"input-address":89,"input-array":95,"input-boolean":96,"input-integer":97,"input-string":98,"solidity-validator":119}],110:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68,"glossary":109,"input-address":90,"input-array":96,"input-boolean":97,"input-integer":98,"input-string":99,"solidity-validator":120}],111:[function(require,module,exports){
 const kvidb = require('kv-idb')
 const cache = kvidb('store-solcjs')
 
@@ -23335,7 +23394,7 @@ function cacheFetch ({ cache, url, caching, transform, timestamp }, done) {
   }).catch(e => console.error('[error]', e))
 }
 
-},{"kv-idb":101}],111:[function(require,module,exports){
+},{"kv-idb":102}],112:[function(require,module,exports){
 // from: sindresorhus/semver-regex
 var semverRegex = /\bv?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?\b/ig
 
@@ -23421,7 +23480,7 @@ module.exports = {
   update: update
 };
 
-},{}],112:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 // @TODO: map stuff from the structure of old compilers to the new compiler
 
 /* IDEAL STRUCTURE:
@@ -23569,7 +23628,7 @@ function format2(_output) {
   return output;
 }
 
-},{}],113:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 function isValidHash (hash) {
   return /^[0-9a-f]{64}$/.test(hash)
 }
@@ -23713,7 +23772,7 @@ module.exports = class CompilerImports {
   }
 }
 
-},{}],114:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 
 module.exports = { linkBytecode, findLinkReferences }
 
@@ -23773,7 +23832,7 @@ function findLinkReferences (bytecode) {
   return linkReferences
 }
 
-},{}],115:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 var linker = require('./linker.js');
 
 /// Translate old style version numbers to semver.
@@ -23970,7 +24029,7 @@ module.exports = {
   prettyPrintLegacyAssemblyJSON: prettyPrintLegacyAssemblyJSON
 };
 
-},{"./linker.js":114}],116:[function(require,module,exports){
+},{"./linker.js":115}],117:[function(require,module,exports){
 var translate = require('./translate.js')
 var linker = require('./linker.js')
 
@@ -24219,7 +24278,7 @@ function wrapper(_soljson) {
   }
 }
 
-},{"./linker.js":114,"./translate.js":115}],117:[function(require,module,exports){
+},{"./linker.js":115,"./translate.js":116}],118:[function(require,module,exports){
 const ajax = require('ajax-cache')
 const baseURL = 'https://solc-bin.ethereum.org/bin'
 // const baseURL = 'https://ethereum.github.io/solc-bin/bin'
@@ -24306,7 +24365,7 @@ function processList (json) {
   return lists
 }
 
-},{"ajax-cache":110}],118:[function(require,module,exports){
+},{"ajax-cache":111}],119:[function(require,module,exports){
 // //////////////////////////////////////////////////////////////////
 // var Compiler = require('./src/compiler/compiler')
 // var CompilerInput = require('./src/compiler/compiler-input')
@@ -24497,7 +24556,7 @@ function load (sourcecode) {
   return compiler
 }
 
-},{"ajax-cache":110,"solc-wrapper/abi-patcher.js":111,"solc-wrapper/format.js":112,"solc-wrapper/handle-imports.js":113,"solc-wrapper/wrapper.js":116,"version2url":117}],119:[function(require,module,exports){
+},{"ajax-cache":111,"solc-wrapper/abi-patcher.js":112,"solc-wrapper/format.js":113,"solc-wrapper/handle-imports.js":114,"solc-wrapper/wrapper.js":117,"version2url":118}],120:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24535,7 +24594,7 @@ var validator = {
 var _default = validator;
 exports.default = _default;
 module.exports = exports.default;
-},{"./lib/getMessage":120,"./lib/getRange":121,"./lib/isAddress":122,"./lib/isBoolean":123,"./lib/isInt8":124,"./lib/isUint8":125,"./lib/isValid":126}],120:[function(require,module,exports){
+},{"./lib/getMessage":121,"./lib/getRange":122,"./lib/isAddress":123,"./lib/isBoolean":124,"./lib/isInt8":125,"./lib/isUint8":126,"./lib/isValid":127}],121:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24561,7 +24620,7 @@ function getMessage(type, str) {
 }
 
 module.exports = exports.default;
-},{"./isValid":126,"./util/assertString":127,"web3-utils":132}],121:[function(require,module,exports){
+},{"./isValid":127,"./util/assertString":128,"web3-utils":133}],122:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24610,7 +24669,7 @@ function getRange(type) {
 }
 
 module.exports = exports.default;
-},{"./util/assertString":127,"bignumber.js":64}],122:[function(require,module,exports){
+},{"./util/assertString":128,"bignumber.js":65}],123:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24630,7 +24689,7 @@ function isAddress(str) {
 }
 
 module.exports = exports.default;
-},{"./util/assertString":127,"web3-utils":132}],123:[function(require,module,exports){
+},{"./util/assertString":128,"web3-utils":133}],124:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24648,7 +24707,7 @@ function isBoolean(str) {
 }
 
 module.exports = exports.default;
-},{"./util/assertString":127}],124:[function(require,module,exports){
+},{"./util/assertString":128}],125:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24669,7 +24728,7 @@ function isInt8(str) {
 }
 
 module.exports = exports.default;
-},{"./util/assertString":127,"bignumber.js":64}],125:[function(require,module,exports){
+},{"./util/assertString":128,"bignumber.js":65}],126:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24690,7 +24749,7 @@ function isUint8(str) {
 }
 
 module.exports = exports.default;
-},{"./util/assertString":127,"bignumber.js":64}],126:[function(require,module,exports){
+},{"./util/assertString":128,"bignumber.js":65}],127:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24723,7 +24782,7 @@ function isValid(type, value) {
 }
 
 module.exports = exports.default;
-},{"./isAddress":122,"./isBoolean":123,"./isInt8":124,"./isUint8":125,"./util/assertString":127,"bignumber.js":64}],127:[function(require,module,exports){
+},{"./isAddress":123,"./isBoolean":124,"./isInt8":125,"./isUint8":126,"./util/assertString":128,"bignumber.js":65}],128:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24756,7 +24815,7 @@ function assertString(input) {
 }
 
 module.exports = exports.default;
-},{}],128:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 var isHexPrefixed = require('is-hex-prefixed');
 
 /**
@@ -24772,7 +24831,7 @@ module.exports = function stripHexPrefix(str) {
   return isHexPrefixed(str) ? str.slice(2) : str;
 }
 
-},{"is-hex-prefixed":100}],129:[function(require,module,exports){
+},{"is-hex-prefixed":101}],130:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -26322,7 +26381,7 @@ module.exports = function stripHexPrefix(str) {
   }
 }.call(this));
 
-},{}],130:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/utf8js v2.0.0 by @mathias */
 ;(function(root) {
@@ -26570,9 +26629,9 @@ module.exports = function stripHexPrefix(str) {
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],131:[function(require,module,exports){
-arguments[4][86][0].apply(exports,arguments)
-},{"dup":86}],132:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
+arguments[4][87][0].apply(exports,arguments)
+},{"dup":87}],133:[function(require,module,exports){
 /*
  This file is part of web3.js.
 
@@ -26938,7 +26997,7 @@ module.exports = {
 };
 
 
-},{"./soliditySha3.js":133,"./utils.js":134,"ethjs-unit":85,"randomhex":107,"underscore":129}],133:[function(require,module,exports){
+},{"./soliditySha3.js":134,"./utils.js":135,"ethjs-unit":86,"randomhex":108,"underscore":130}],134:[function(require,module,exports){
 /*
  This file is part of web3.js.
 
@@ -27185,7 +27244,7 @@ var soliditySha3 = function () {
 
 module.exports = soliditySha3;
 
-},{"./utils.js":134,"bn.js":131,"underscore":129}],134:[function(require,module,exports){
+},{"./utils.js":135,"bn.js":132,"underscore":130}],135:[function(require,module,exports){
 /*
  This file is part of web3.js.
 
@@ -27654,7 +27713,7 @@ module.exports = {
     sha3: sha3
 };
 
-},{"bn.js":131,"eth-lib/lib/hash":84,"number-to-bn":103,"underscore":129,"utf8":130}],135:[function(require,module,exports){
+},{"bn.js":132,"eth-lib/lib/hash":85,"number-to-bn":104,"underscore":130,"utf8":131}],136:[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
 const logo = require('play-logo')
@@ -27759,7 +27818,7 @@ const style = ({
   overflow: hidden;
 }`
 
-},{"bel":63,"csjs-inject":67,"play-logo":104}],136:[function(require,module,exports){
+},{"bel":64,"csjs-inject":68,"play-logo":105}],137:[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
 
@@ -27919,7 +27978,7 @@ function debounce (fn) {
   }
 }
 
-},{"./theme.js":137,"bel":63,"coding-editor":34,"csjs-inject":67,"menubar":135,"smartcontract-app":109,"solc-js":118,"twm":60}],137:[function(require,module,exports){
+},{"./theme.js":138,"bel":64,"coding-editor":34,"csjs-inject":68,"menubar":136,"smartcontract-app":110,"solc-js":119,"twm":61}],138:[function(require,module,exports){
 // @TODO: add two classes to components
 // 1. invariant class (layout, etc...)
 // 2. custom class with default class fallback (for customisation)
@@ -28028,4 +28087,4 @@ module.exports = darktheme
 // #36383f // icon background
 // #ffffff // icon text
 
-},{}]},{},[61]);
+},{}]},{},[62]);
