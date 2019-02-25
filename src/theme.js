@@ -22,14 +22,14 @@ var darkish = 'hsla(0, 0%, 8%, 1)' // dark seperator
 
 const lighttheme = {
   // TWM ------------------------------
-  font1: tabfont,        // tab font
-  color_text: darkgrey,        // tab inactive text
-  color_activeText: white,     // tab active text
-  color_bgPanel: smokewhite,    // panel background & separators
-  color_bgTab: lavenderGrey,  // tab
-  color_bgContent: lavenderGrey,  // TAB BACKGROUND - lavenderGrey -
-  color_background: slateGrey,     // PLAY EDITOR BACKGROUND
-  color_bgPane: white,         // panel background
+  font1: tabfont,                // tab font
+  color_text: darkgrey,          // tab inactive text
+  color_activeText: white,       // tab active text
+  color_bgPanel: smokewhite,     // panel background & separators
+  color_bgTab: lavenderGrey,     // tab
+  color_bgContent: lavenderGrey, // TAB BACKGROUND - lavenderGrey -
+  color_background: slateGrey,   // PLAY EDITOR BACKGROUND
+  color_bgPane: white,           // panel background
   color_bgMenubar: lavenderGrey, // menubar background color
   // LOGO ------------------------------
   logo:[
@@ -44,15 +44,15 @@ const lighttheme = {
 }
 const darktheme = {
   // TWM ------------------------------
-  font1: tabfont,        // tab font
+  font1: tabfont,              // tab font
   color_text: slateGrey,       // tab inactive text
   color_activeText: white,     // tab active text
-  color_bgPanel: dark,          // panel background & separators
-  color_bgTab: darkgrey,      // tab
-  color_bgContent: darkgrey,      // TAB BACKGROUND - lavenderGrey -
-  color_background: slateGrey,     // PLAY EDITOR BACKGROUND
+  color_bgPanel: dark,         // panel background & separators
+  color_bgTab: darkgrey,       // tab
+  color_bgContent: darkgrey,   // TAB BACKGROUND - lavenderGrey -
+  color_background: slateGrey, // PLAY EDITOR BACKGROUND
   color_bgPane: darkgrey,      // panel background
-  color_bgMenubar: darkgrey, // menubar background color
+  color_bgMenubar: darkgrey,   // menubar background color
   // LOGO ------------------------------
   logo:[
     `hsla(${360*Math.random()},100%,30%,1)`,

@@ -1,11 +1,12 @@
 {
   "name": "play-editor",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "embeddable solidity editor",
   "main": "src/play-editor.js",
   "scripts": {
-    "start": "budo demo.js:bundle.js --open --live",
-    "build": "browserify demo.js > bundle.js",
+    "start": "budo demo/demo.js:bundle.js --title $npm_package_name --force-default-index --open --live --ssl",
+    "build": "browserify --full-paths demo/demo.js > bundle.js",
+    "analyse": "discify bundle.js > disc.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,14 +28,16 @@
   },
   "homepage": "https://ethereum-play.github.io/play-editor",
   "devDependencies": {
-    "budo": "^11.3.2"
+    "budo": "^11.6.0",
+    "disc": "^1.3.3"
   },
   "dependencies": {
     "bel": "6.0.0",
-    "coding-editor": "0.0.3",
+    "coding-editor": "0.0.4",
     "csjs-inject": "1.0.1",
     "play-logo": "4.0.2",
-    "smartcontract-app": "^2.0.0",
-    "solc-js": "^0.5.5"
+    "smartcontract-app": "^2.4.0",
+    "solc-js": "^1.0.0",
+    "twm": "0.0.2"
   }
 }
