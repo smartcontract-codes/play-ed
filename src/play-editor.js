@@ -13,7 +13,6 @@ const defaultTheme = require('./theme.js')
 module.exports = playeditor
 
 function playeditor (opts = {}, theme = defaultTheme) {
-  debugger
   const ed = {
     name: opts.name || 'contract.sol',
     el: codingeditor({
@@ -51,7 +50,6 @@ function playeditor (opts = {}, theme = defaultTheme) {
           var result = await compiler(sourcecode)
         } catch (e) {
           console.error('@TODO: report errors properly')
-          debugger
         }
 
         // @TODO: translate new compiler format to old one
@@ -122,7 +120,6 @@ function playeditor (opts = {}, theme = defaultTheme) {
   const [,[,[,editor, output],[,scapp]],[,navbar]] = Array.from(mosaic)
   mosaic.on('resize', event => {
     console.log('dosomething! ...maybe - to fix size')
-    debugger
     // window.addEventListener('resize', event => {
     //   // @TODO: this task needs to be performed by the `twm` instead
     //   var height = ed.el.getBoundingClientRect().height
