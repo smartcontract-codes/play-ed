@@ -36,7 +36,7 @@
     "coding-editor": "0.0.5",
     "csjs-inject": "1.0.1",
     "play-logo": "4.0.2",
-    "smartcontract-app": "^2.4.0",
+    "smartcontract-app": "^2.5.0",
     "solc-js": "^1.0.0",
     "twm": "0.0.3"
   }
