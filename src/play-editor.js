@@ -105,32 +105,10 @@ function playeditor (opts = {}, theme = defaultTheme) {
         } catch (e) {
           console.error('@TODO: report errors properly')
         }
-
-        // @TODO: translate new compiler format to old one
-        //        until smartcontract-app supports new format
-        var opts = {
-          metadata: {
-            compiler: { version: result[0].compiler.version },
-            language: result[0].compiler.language,
-            output: {
-              abi: result[0].abi,
-              devdoc: result[0].metadata.devdoc,
-              userdoc: result[0].metadata.userdoc
-            },
-            settings: {
-              compilationTarget: { '': result[0].sources.compilationTarget },
-              evmVersion: result[0].compiler.evmVersion,
-              libraries: result[0].sources.libraries,
-              optimizer: { enabled: result[0].compiler.optimizer, runs: result[0].compiler.runs },
-              remapings: result[0].sources.remappings
-            },
-            sources: { '': result[0].sources.sourcecode }
-          }
-        }
-        var el = smartcontract(opts)
+        var el = smartcontract(result)
         scapp.el.innerHTML = ''
         scapp.el.appendChild(el)
-        output.el.textContent = JSON.stringify(opts)
+        output.el.textContent = JSON.stringify(result)
       }, 0)
     }
   }
