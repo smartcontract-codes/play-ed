@@ -30335,18 +30335,22 @@ module.exports = {
 
 // const match = /^(http?:\/\/?(.*))$/;
 },{"./parser":"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-http/src/parser.js","./resolver":"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-http/src/resolver.js"}],"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-http/src/parser.js":[function(require,module,exports){
+const replaceContent = require('solc-import').replaceContent;
+const resolver = require('./resolver');
+
 module.exports = async function (importPath) {
   const [, url,] = require('./index').match.exec(importPath);
   try {
     const response = await fetch(url, { method: 'GET' });
-    const data = await response.text();
+    let data = await response.text();
     if (!response.ok || response.status !== 200) throw Error('Content ' + data);
+    data = replaceContent(data, importPath, resolver);
     return data;
   } catch (error) {
     throw error;
   }
 };
-},{"./index":"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-http/src/index.js"}],"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-http/src/resolver.js":[function(require,module,exports){
+},{"./index":"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-http/src/index.js","./resolver":"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-http/src/resolver.js","solc-import":"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/solc-import/src/index.js"}],"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-http/src/resolver.js":[function(require,module,exports){
 arguments[4]["/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-github/src/resolver.js"][0].apply(exports,arguments)
 },{}],"/home/ninabreznik/Documents/code/fairyDust/ethereum/play/play-editor/node_modules/resolve-ipfs/src/index.js":[function(require,module,exports){
 module.exports = {
@@ -32451,9 +32455,9 @@ function getMetadata(contract, name, version) {
     let name2 = Object.keys(contract)[0];
     // let { metadata, abi, evm } 
     let { metadata } = contract[name2];
-    metadata = JSON.parse(metadata);
     // console.log('=== metadata ====');
     // console.log(metadata);
+    if (metadata) metadata = JSON.parse(metadata);
     return metadata;
   } else {
     return;
@@ -32463,10 +32467,12 @@ function getMetadata(contract, name, version) {
 function getCompile(metadata, version, url, name) {
   let language, evmVersion, optimizer, runs;
   if (isNewVersion(version)) {
-    language = metadata.language.toLowerCase();
-    evmVersion = metadata.settings.evmVersion;
-    optimizer = metadata.settings.optimizer.enabled;
-    runs = metadata.settings.optimizer.runs;
+    if (metadata) {
+      language = metadata.language.toLowerCase();
+      evmVersion = metadata.settings.evmVersion;
+      optimizer = metadata.settings.optimizer.enabled;
+      runs = metadata.settings.optimizer.runs;
+    }
   } else {
     language = 'solidity';
     // evmVersion = metadata.settings.evmVersion;
@@ -32488,6 +32494,7 @@ function getSource(data, metadata, version, name) {
   let sources = {};
 
   if (isMatchVersion(version, '0.5', '0.4')) {
+    if (!metadata) return sources;
     sources = {
       sourcecode: {
         keccak256: getKeccak256(metadata, version, name),
