@@ -111,6 +111,5 @@ function contract () {
       operator = msg.sender;
     }
   }
-
   `
 }

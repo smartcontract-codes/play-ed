@@ -112,7 +112,6 @@ function contract () {
       operator = msg.sender;
     }
   }
-
   `
 }
 
@@ -33810,7 +33809,31 @@ const style = ({
 
 })));
 
-},{"@babel/runtime/helpers/typeof":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/@babel/runtime/helpers/typeof.js","bn.js":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bn.js/lib/bn.js","eth-lib/lib/hash":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/eth-lib/lib/hash.js","ethjs-unit":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/ethjs-unit/lib/index.js","lodash/isArray":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isArray.js","lodash/isBoolean":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isBoolean.js","lodash/isNull":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isNull.js","lodash/isNumber":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isNumber.js","lodash/isObject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isObject.js","lodash/isString":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isString.js","lodash/map":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/map.js","number-to-bn":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/number-to-bn/src/index.js","randomhex":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/randomhex/src/index.js","utf8":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/utf8/utf8.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/node_modules/menubar.js":[function(require,module,exports){
+},{"@babel/runtime/helpers/typeof":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/@babel/runtime/helpers/typeof.js","bn.js":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bn.js/lib/bn.js","eth-lib/lib/hash":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/eth-lib/lib/hash.js","ethjs-unit":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/ethjs-unit/lib/index.js","lodash/isArray":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isArray.js","lodash/isBoolean":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isBoolean.js","lodash/isNull":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isNull.js","lodash/isNumber":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isNumber.js","lodash/isObject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isObject.js","lodash/isString":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isString.js","lodash/map":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/map.js","number-to-bn":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/number-to-bn/src/index.js","randomhex":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/randomhex/src/index.js","utf8":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/utf8/utf8.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/node_modules/getCompilerVersion.js":[function(require,module,exports){
+module.exports = getCompilerVersion
+
+function getCompilerVersion (releases, code) {
+  var regex = /pragma solidity ([><=\^]*)(\d+\.\d+\.\d+)?\s*([><=\^]*)(\d+\.\d+\.\d+)?;/
+  var [ pragma,op1, min, op2, max] = code.match(regex)
+  if (pragma) {
+    if (max) {
+      for (var i = 0, len = releases.length; i < len; i++) {
+        if (releases[i].includes(max)) return releases[i]
+      }
+      return releases[0]
+    } else if (min) {
+      for (var i = 0, len = releases.length; i < len; i++) {
+        if (releases[i].includes(min)) return releases[i]
+      }
+      return releases[0]
+    }
+    return releases[0]
+  } else {
+    return releases[0]
+  }
+}
+
+},{}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/node_modules/menubar.js":[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
 const logo = require('play-logo')
@@ -33925,109 +33948,98 @@ const codingeditor = require('coding-editor')
 
 const twm = require('twm')
 const menubar = require('menubar')
+const getCompilerVersion = require('getCompilerVersion')
 
 const defaultTheme = require('./theme.js')
 
 module.exports = playeditor
 
 function playeditor (opts = {}, theme = defaultTheme) {
+  const code = `
+  pragma solidity >=0.5.0;
+  pragma experimental ABIEncoderV2;
+  contract InvoiceJournal {
+    struct Contractor {
+      string name;
+      string email;
+      string pubkey;
+      bool active;
+      bool exists;
+    }
+    struct Invoice {
+      address contractor;
+      uint invoice_id;
+      string storage_url;
+      string[] encrypted_decrypt_keys; // @TODO: not in use yet :-)
+    }
+    address operator;
+    mapping(address => Contractor) contractors;
+    mapping(address => Invoice[]) invoices;
+    address[] contractor_addresses;
+    function getAllInvoices () public view returns (Invoice[][] memory) {
+      uint len = contractor_addresses.length;
+    	Invoice[][] memory result = new Invoice[][](len);
+      for (uint i = 0; i < len; i++) {
+        result[i] = invoices[contractor_addresses[i]];
+      }
+      return result;
+    }
+    function getAllContractors () public view returns (Contractor[] memory) {
+      uint len = contractor_addresses.length;
+    	Contractor[] memory result = new Contractor[](len);
+      for (uint i = 0; i < len; i++) {
+        result[i] = contractors[contractor_addresses[i]];
+      }
+      return result;
+    }
+    function getYourInvoices () public view returns (Invoice[] memory) {
+      return invoices[msg.sender];
+    }
+    function activateContractor (address contractor_address) public {
+      require(operator == msg.sender, "Only an authorized operator can add new contractors");
+      Contractor storage contractor = contractors[contractor_address];
+      contractor.active = true;
+      if (!contractor.exists) {
+        contractor.exists = true;
+        contractor_addresses.push(contractor_address);
+      }
+    }
+    function deactivateContractor (address contractor_address) public {
+      require(operator == msg.sender, "Only an authorized operator can remove contractors");
+      Contractor storage contractor = contractors[contractor_address];
+      if (!contractor.active) return;
+      contractor.active = false;
+    }
+    function updateContractor (string memory name, string memory email, string memory pubkey) public {
+      Contractor storage contractor = contractors[msg.sender];
+      require(contractor.active, "Unauthorized contractors cannot set their pubkeys");
+      contractor.name = name;
+      contractor.email = email;
+      contractor.pubkey = pubkey;
+    }
+    function addInvoice (uint invoice_id, string memory storage_url, string[] memory keys) public returns (Contractor memory) {
+      Contractor memory contractor = contractors[msg.sender];
+      require(contractor.exists, "Unknown contractors cannot submit invoices");
+      require(contractor.active, "Unauthorized contractors cannot submit invoices");
+      Invoice[] storage _invoices = invoices[msg.sender];
+      Invoice memory new_invoice = Invoice({
+        contractor: msg.sender,
+        invoice_id: invoice_id,
+        storage_url: storage_url,
+        encrypted_decrypt_keys: keys
+      });
+      _invoices.push(new_invoice);
+      return contractor;
+    }
+    constructor () public {
+      operator = msg.sender;
+    }
+  }
+`
   const ed = {
     name: opts.name || 'contract.sol',
     el: codingeditor({
-      value: opts.value || `
-      pragma solidity >=0.5.0;
-      pragma experimental ABIEncoderV2;
-
-      contract InvoiceJournal {
-
-        struct Contractor {
-          string name;
-          string email;
-          string pubkey;
-          bool active;
-          bool exists;
-        }
-
-        struct Invoice {
-          address contractor;
-          uint invoice_id;
-          string storage_url;
-          string[] encrypted_decrypt_keys; // @TODO: not in use yet :-)
-        }
-
-        address operator;
-        mapping(address => Contractor) contractors;
-        mapping(address => Invoice[]) invoices;
-        address[] contractor_addresses;
-
-        function getAllInvoices () public view returns (Invoice[][] memory) {
-          uint len = contractor_addresses.length;
-        	Invoice[][] memory result = new Invoice[][](len);
-          for (uint i = 0; i < len; i++) {
-            result[i] = invoices[contractor_addresses[i]];
-          }
-          return result;
-        }
-
-        function getAllContractors () public view returns (Contractor[] memory) {
-          uint len = contractor_addresses.length;
-        	Contractor[] memory result = new Contractor[](len);
-          for (uint i = 0; i < len; i++) {
-            result[i] = contractors[contractor_addresses[i]];
-          }
-          return result;
-        }
-
-        function getYourInvoices () public view returns (Invoice[] memory) {
-          return invoices[msg.sender];
-        }
-
-        function activateContractor (address contractor_address) public {
-          require(operator == msg.sender, "Only an authorized operator can add new contractors");
-          Contractor storage contractor = contractors[contractor_address];
-          contractor.active = true;
-          if (!contractor.exists) {
-            contractor.exists = true;
-            contractor_addresses.push(contractor_address);
-          }
-        }
-
-        function deactivateContractor (address contractor_address) public {
-          require(operator == msg.sender, "Only an authorized operator can remove contractors");
-          Contractor storage contractor = contractors[contractor_address];
-          if (!contractor.active) return;
-          contractor.active = false;
-        }
-
-        function updateContractor (string memory name, string memory email, string memory pubkey) public {
-          Contractor storage contractor = contractors[msg.sender];
-          require(contractor.active, "Unauthorized contractors cannot set their pubkeys");
-          contractor.name = name;
-          contractor.email = email;
-          contractor.pubkey = pubkey;
-        }
-
-        function addInvoice (uint invoice_id, string memory storage_url, string[] memory keys) public returns (Contractor memory) {
-          Contractor memory contractor = contractors[msg.sender];
-          require(contractor.exists, "Unknown contractors cannot submit invoices");
-          require(contractor.active, "Unauthorized contractors cannot submit invoices");
-          Invoice[] storage _invoices = invoices[msg.sender];
-          Invoice memory new_invoice = Invoice({
-            contractor: msg.sender,
-            invoice_id: invoice_id,
-            storage_url: storage_url,
-            encrypted_decrypt_keys: keys
-          });
-          _invoices.push(new_invoice);
-          return contractor;
-        }
-
-        constructor () public {
-          operator = msg.sender;
-        }
-        
-      }
-      `,
+      value: opts.value || code,
       lineNumbers: true,
     }, theme),
   }
@@ -34035,8 +34047,7 @@ function playeditor (opts = {}, theme = defaultTheme) {
   const download = async () => {
     const select = await solcjs.versions()
     const { releases, nightly, all } = select
-
-    const version = releases[0]
+    const version = getCompilerVersion(releases, code)
     compiler = await solcjs(version)
     update()
   }
@@ -34138,7 +34149,7 @@ function debounce (fn) {
   }
 }
 
-},{"./theme.js":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/theme.js","bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","coding-editor":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/coding-editor/src/editor.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","menubar":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/node_modules/menubar.js","smartcontract-app":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/smartcontract-app.js","solc-js":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solc-js/src/index.js","twm":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/twm/src/twm.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/theme.js":[function(require,module,exports){
+},{"./theme.js":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/theme.js","bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","coding-editor":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/coding-editor/src/editor.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","getCompilerVersion":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/node_modules/getCompilerVersion.js","menubar":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/node_modules/menubar.js","smartcontract-app":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/smartcontract-app.js","solc-js":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solc-js/src/index.js","twm":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/twm/src/twm.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/theme.js":[function(require,module,exports){
 // @TODO: add two classes to components
 // 1. invariant class (layout, etc...)
 // 2. custom class with default class fallback (for customisation)
