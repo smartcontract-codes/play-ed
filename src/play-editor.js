@@ -15,85 +15,85 @@ module.exports = playeditor
 
 function playeditor (opts = {}, theme = defaultTheme) {
   const code = `
-  pragma solidity >=0.5.0;
-  pragma experimental ABIEncoderV2;
-  contract InvoiceJournal {
-    struct Contractor {
-      string name;
-      string email;
-      string pubkey;
-      bool active;
-      bool exists;
+pragma solidity >=0.5.0;
+pragma experimental ABIEncoderV2;
+contract InvoiceJournal {
+  struct Contractor {
+    string name;
+    string email;
+    string pubkey;
+    bool active;
+    bool exists;
+  }
+  struct Invoice {
+    address contractor;
+    uint invoice_id;
+    string storage_url;
+    string[] encrypted_decrypt_keys; // @TODO: not in use yet :-)
+  }
+  address operator;
+  mapping(address => Contractor) contractors;
+  mapping(address => Invoice[]) invoices;
+  address[] contractor_addresses;
+  function getAllInvoices () public view returns (Invoice[][] memory) {
+    uint len = contractor_addresses.length;
+  	Invoice[][] memory result = new Invoice[][](len);
+    for (uint i = 0; i < len; i++) {
+      result[i] = invoices[contractor_addresses[i]];
     }
-    struct Invoice {
-      address contractor;
-      uint invoice_id;
-      string storage_url;
-      string[] encrypted_decrypt_keys; // @TODO: not in use yet :-)
+    return result;
+  }
+  function getAllContractors () public view returns (Contractor[] memory) {
+    uint len = contractor_addresses.length;
+  	Contractor[] memory result = new Contractor[](len);
+    for (uint i = 0; i < len; i++) {
+      result[i] = contractors[contractor_addresses[i]];
     }
-    address operator;
-    mapping(address => Contractor) contractors;
-    mapping(address => Invoice[]) invoices;
-    address[] contractor_addresses;
-    function getAllInvoices () public view returns (Invoice[][] memory) {
-      uint len = contractor_addresses.length;
-    	Invoice[][] memory result = new Invoice[][](len);
-      for (uint i = 0; i < len; i++) {
-        result[i] = invoices[contractor_addresses[i]];
-      }
-      return result;
-    }
-    function getAllContractors () public view returns (Contractor[] memory) {
-      uint len = contractor_addresses.length;
-    	Contractor[] memory result = new Contractor[](len);
-      for (uint i = 0; i < len; i++) {
-        result[i] = contractors[contractor_addresses[i]];
-      }
-      return result;
-    }
-    function getYourInvoices () public view returns (Invoice[] memory) {
-      return invoices[msg.sender];
-    }
-    function activateContractor (address contractor_address) public {
-      require(operator == msg.sender, "Only an authorized operator can add new contractors");
-      Contractor storage contractor = contractors[contractor_address];
-      contractor.active = true;
-      if (!contractor.exists) {
-        contractor.exists = true;
-        contractor_addresses.push(contractor_address);
-      }
-    }
-    function deactivateContractor (address contractor_address) public {
-      require(operator == msg.sender, "Only an authorized operator can remove contractors");
-      Contractor storage contractor = contractors[contractor_address];
-      if (!contractor.active) return;
-      contractor.active = false;
-    }
-    function updateContractor (string memory name, string memory email, string memory pubkey) public {
-      Contractor storage contractor = contractors[msg.sender];
-      require(contractor.active, "Unauthorized contractors cannot set their pubkeys");
-      contractor.name = name;
-      contractor.email = email;
-      contractor.pubkey = pubkey;
-    }
-    function addInvoice (uint invoice_id, string memory storage_url, string[] memory keys) public returns (Contractor memory) {
-      Contractor memory contractor = contractors[msg.sender];
-      require(contractor.exists, "Unknown contractors cannot submit invoices");
-      require(contractor.active, "Unauthorized contractors cannot submit invoices");
-      Invoice[] storage _invoices = invoices[msg.sender];
-      Invoice memory new_invoice = Invoice({
-        contractor: msg.sender,
-        invoice_id: invoice_id,
-        storage_url: storage_url,
-        encrypted_decrypt_keys: keys
-      });
-      _invoices.push(new_invoice);
-      return contractor;
-    }
-    constructor () public {
-      operator = msg.sender;
+    return result;
+  }
+  function getYourInvoices () public view returns (Invoice[] memory) {
+    return invoices[msg.sender];
+  }
+  function activateContractor (address contractor_address) public {
+    require(operator == msg.sender, "Only an authorized operator can add new contractors");
+    Contractor storage contractor = contractors[contractor_address];
+    contractor.active = true;
+    if (!contractor.exists) {
+      contractor.exists = true;
+      contractor_addresses.push(contractor_address);
     }
   }
+  function deactivateContractor (address contractor_address) public {
+    require(operator == msg.sender, "Only an authorized operator can remove contractors");
+    Contractor storage contractor = contractors[contractor_address];
+    if (!contractor.active) return;
+    contractor.active = false;
+  }
+  function updateContractor (string memory name, string memory email, string memory pubkey) public {
+    Contractor storage contractor = contractors[msg.sender];
+    require(contractor.active, "Unauthorized contractors cannot set their pubkeys");
+    contractor.name = name;
+    contractor.email = email;
+    contractor.pubkey = pubkey;
+  }
+  function addInvoice (uint invoice_id, string memory storage_url, string[] memory keys) public returns (Contractor memory) {
+    Contractor memory contractor = contractors[msg.sender];
+    require(contractor.exists, "Unknown contractors cannot submit invoices");
+    require(contractor.active, "Unauthorized contractors cannot submit invoices");
+    Invoice[] storage _invoices = invoices[msg.sender];
+    Invoice memory new_invoice = Invoice({
+      contractor: msg.sender,
+      invoice_id: invoice_id,
+      storage_url: storage_url,
+      encrypted_decrypt_keys: keys
+    });
+    _invoices.push(new_invoice);
+    return contractor;
+  }
+  constructor () public {
+    operator = msg.sender;
+  }
+}
 `
   const ed = {
     name: opts.name || 'contract.sol',
@@ -102,30 +102,33 @@ function playeditor (opts = {}, theme = defaultTheme) {
       lineNumbers: true,
     }, theme),
   }
-  var compiler
-  const download = async () => {
-    const select = await solcjs.versions()
-    const { releases, nightly, all } = select
-    const version = getCompilerVersion(releases, code)
-    compiler = await solcjs(version)
-    update()
-  }
-  download()
-  function update () {
-    if (compiler) {
-      var sourcecode = ed.el.api.getValue()
-      var id = setTimeout(async () => {
-        try {
-          var result = await compiler(sourcecode)
-        } catch (e) {
-          console.error('@TODO: report errors properly')
-        }
-        var el = smartcontract(result)
+  var select, releases, nightly, all
+  update()
+  async function update () {
+    if (!select) {
+      select = await solcjs.versions()
+      releases = select.releases
+      nightly = select.nightly
+      all = select.all
+    }
+    const sourcecode = ed.el.api.getValue()
+    const version = getCompilerVersion(releases, sourcecode)
+    const compiler = await solcjs(version)
+    var id = setTimeout(async () => {
+      try {
+        var result = await compiler(sourcecode)
+      } catch (e) {
+        var el = bel`<pre style="color: red;">${JSON.stringify(e, 0 , 2)}</pre>`
         scapp.el.innerHTML = ''
         scapp.el.appendChild(el)
-        output.el.textContent = JSON.stringify(result)
-      }, 0)
-    }
+        output.el.textContent = ''
+        return
+      }
+      var el = smartcontract(result)
+      scapp.el.innerHTML = ''
+      scapp.el.appendChild(el)
+      output.el.textContent = JSON.stringify(result)
+    }, 0)
   }
   ed.el.api.on('change', debounce((api) => update()))
 
