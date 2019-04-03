@@ -17,7 +17,10 @@ function playeditor (opts = {}, theme = defaultTheme) {
   const code = `
 pragma solidity >=0.5.0;
 pragma experimental ABIEncoderV2;
+
 contract InvoiceJournal {
+
+/// WHAT DATA WILL WE STORE ON BLOCKCHAIN
   struct Contractor {
     string name;
     string email;
@@ -35,6 +38,8 @@ contract InvoiceJournal {
   mapping(address => Contractor) contractors;
   mapping(address => Invoice[]) invoices;
   address[] contractor_addresses;
+
+/// GET A LIST OF ALL PUBLISHED INVOICES
   function getAllInvoices () public view returns (Invoice[][] memory) {
     uint len = contractor_addresses.length;
   	Invoice[][] memory result = new Invoice[][](len);
@@ -43,6 +48,8 @@ contract InvoiceJournal {
     }
     return result;
   }
+
+/// GET A LIST OF ALL CONTRACTORS (ACTIVE AND NOT ACTIVE)
   function getAllContractors () public view returns (Contractor[] memory) {
     uint len = contractor_addresses.length;
   	Contractor[] memory result = new Contractor[](len);
@@ -51,9 +58,13 @@ contract InvoiceJournal {
     }
     return result;
   }
+
+/// GET A LIST OF ALL YOUR INVOICES
   function getYourInvoices () public view returns (Invoice[] memory) {
     return invoices[msg.sender];
   }
+
+/// FIRST STEP: ADD/RE-ACTIVATE A CONTRACTOR
   function activateContractor (address contractor_address) public {
     require(operator == msg.sender, "Only an authorized operator can add new contractors");
     Contractor storage contractor = contractors[contractor_address];
@@ -63,12 +74,16 @@ contract InvoiceJournal {
       contractor_addresses.push(contractor_address);
     }
   }
+
+/// DE-ACTIVATE A CONTRACTOR
   function deactivateContractor (address contractor_address) public {
     require(operator == msg.sender, "Only an authorized operator can remove contractors");
     Contractor storage contractor = contractors[contractor_address];
     if (!contractor.active) return;
     contractor.active = false;
   }
+
+/// ONLY CONTRACTORS THEMSELF CAN UPDATE THEIR DATA
   function updateContractor (string memory name, string memory email, string memory pubkey) public {
     Contractor storage contractor = contractors[msg.sender];
     require(contractor.active, "Unauthorized contractors cannot set their pubkeys");
@@ -76,6 +91,8 @@ contract InvoiceJournal {
     contractor.email = email;
     contractor.pubkey = pubkey;
   }
+
+/// ACTIVE CONTRACTOR CAN ADD A NEW INVOICE
   function addInvoice (uint invoice_id, string memory storage_url, string[] memory keys) public returns (Contractor memory) {
     Contractor memory contractor = contractors[msg.sender];
     require(contractor.exists, "Unknown contractors cannot submit invoices");
@@ -87,12 +104,16 @@ contract InvoiceJournal {
       storage_url: storage_url,
       encrypted_decrypt_keys: keys
     });
+
     _invoices.push(new_invoice);
     return contractor;
   }
+
+/// CONSTRUCTOR (RUNS ONLY ONCE - WHEN CONTRACT IS DEPLOYED)
   constructor () public {
     operator = msg.sender;
   }
+
 }
 `
   const ed = {
