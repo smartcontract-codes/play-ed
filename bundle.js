@@ -30156,7 +30156,7 @@ var css = csjs`
       top: -41px;
       left: 20px;
       min-height: 80px;
-      width: 630px;
+      width: 546px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -30247,11 +30247,11 @@ var css = csjs`
     }
     .constructorFn {
       padding-top: 18px;
-      width: 650px;
+      width: 600px;
     }
     .functions {
       font-size: 1.3rem;
-      width: 650px;
+      width: 570px;
     }
     .title {
       font-size: 1.3rem;
@@ -30371,7 +30371,7 @@ var css = csjs`
       position: relative;
       border: 2px dashed ${colors.darkSmoke};
       padding: 20px 0;
-      width: 630px;
+      width: 540px;
       margin: 0 0 5em 20px;
     }
     .statsEl {
@@ -33209,23 +33209,23 @@ const style = ({
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/web3-utils/dist/web3-utils.umd.js":[function(require,module,exports){
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('lodash/isBoolean'), require('lodash/isString'), require('lodash/isNumber'), require('lodash/isNull'), require('number-to-bn'), require('utf8'), require('eth-lib/lib/hash'), require('ethjs-unit'), require('@babel/runtime/helpers/typeof'), require('lodash/isArray'), require('lodash/isObject'), require('lodash/map'), require('bn.js'), require('randomhex')) :
-    typeof define === 'function' && define.amd ? define(['exports', 'lodash/isBoolean', 'lodash/isString', 'lodash/isNumber', 'lodash/isNull', 'number-to-bn', 'utf8', 'eth-lib/lib/hash', 'ethjs-unit', '@babel/runtime/helpers/typeof', 'lodash/isArray', 'lodash/isObject', 'lodash/map', 'bn.js', 'randomhex'], factory) :
-    (factory((global.Web3Utils = {}),global.isBoolean,global.isString,global.isNumber,global.isNull,global.numberToBN,global.utf8,global.Hash,global.ethjsUnit,global._typeof,global.isArray,global.isObject,global.map,global.BN,global.randomhex));
-}(this, (function (exports,isBoolean,isString,isNumber,isNull,numberToBN,utf8,Hash,ethjsUnit,_typeof,isArray,isObject,map,BN,randomhex) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@babel/runtime/helpers/typeof'), require('lodash/isObject'), require('lodash/isString'), require('lodash/isArray'), require('lodash/isBoolean'), require('lodash/isNumber'), require('lodash/isNull'), require('number-to-bn'), require('utf8'), require('eth-lib/lib/hash'), require('bn.js'), require('ethjs-unit'), require('lodash/map'), require('randomhex')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@babel/runtime/helpers/typeof', 'lodash/isObject', 'lodash/isString', 'lodash/isArray', 'lodash/isBoolean', 'lodash/isNumber', 'lodash/isNull', 'number-to-bn', 'utf8', 'eth-lib/lib/hash', 'bn.js', 'ethjs-unit', 'lodash/map', 'randomhex'], factory) :
+    (global = global || self, factory(global.Web3Utils = {}, global._typeof, global.isObject, global.isString, global.isArray, global.isBoolean, global.isNumber, global.isNull, global.numberToBN, global.utf8, global.Hash, global.BN, global.ethjsUnit, global.map, global.randomhex));
+}(this, function (exports, _typeof, isObject, isString, isArray, isBoolean, isNumber, isNull, numberToBN, utf8, Hash, BN, ethjsUnit, map, randomhex) { 'use strict';
 
-    isBoolean = isBoolean && isBoolean.hasOwnProperty('default') ? isBoolean['default'] : isBoolean;
+    _typeof = _typeof && _typeof.hasOwnProperty('default') ? _typeof['default'] : _typeof;
+    isObject = isObject && isObject.hasOwnProperty('default') ? isObject['default'] : isObject;
     isString = isString && isString.hasOwnProperty('default') ? isString['default'] : isString;
+    isArray = isArray && isArray.hasOwnProperty('default') ? isArray['default'] : isArray;
+    isBoolean = isBoolean && isBoolean.hasOwnProperty('default') ? isBoolean['default'] : isBoolean;
     isNumber = isNumber && isNumber.hasOwnProperty('default') ? isNumber['default'] : isNumber;
     isNull = isNull && isNull.hasOwnProperty('default') ? isNull['default'] : isNull;
     numberToBN = numberToBN && numberToBN.hasOwnProperty('default') ? numberToBN['default'] : numberToBN;
     utf8 = utf8 && utf8.hasOwnProperty('default') ? utf8['default'] : utf8;
     Hash = Hash && Hash.hasOwnProperty('default') ? Hash['default'] : Hash;
-    _typeof = _typeof && _typeof.hasOwnProperty('default') ? _typeof['default'] : _typeof;
-    isArray = isArray && isArray.hasOwnProperty('default') ? isArray['default'] : isArray;
-    isObject = isObject && isObject.hasOwnProperty('default') ? isObject['default'] : isObject;
-    map = map && map.hasOwnProperty('default') ? map['default'] : map;
     BN = BN && BN.hasOwnProperty('default') ? BN['default'] : BN;
+    map = map && map.hasOwnProperty('default') ? map['default'] : map;
     randomhex = randomhex && randomhex.hasOwnProperty('default') ? randomhex['default'] : randomhex;
 
     var isBN = function isBN(object) {
@@ -33275,15 +33275,15 @@ const style = ({
       var padding = chars - string.length + 1 >= 0 ? chars - string.length + 1 : 0;
       return (hasPrefix ? '0x' : '') + string + new Array(padding).join(sign || '0');
     };
-    var utf8ToHex = function utf8ToHex(str) {
-      str = utf8.encode(str);
+    var utf8ToHex = function utf8ToHex(value) {
+      value = utf8.encode(value);
       var hex = '';
-      str = str.replace(/^(?:\u0000)*/, '');
-      str = str.split('').reverse().join('');
-      str = str.replace(/^(?:\u0000)*/, '');
-      str = str.split('').reverse().join('');
-      for (var i = 0; i < str.length; i++) {
-        var code = str.charCodeAt(i);
+      value = value.replace(/^(?:\u0000)*/, '');
+      value = value.split('').reverse().join('');
+      value = value.replace(/^(?:\u0000)*/, '');
+      value = value.split('').reverse().join('');
+      for (var i = 0; i < value.length; i++) {
+        var code = value.charCodeAt(i);
         var n = code.toString(16);
         hex += n.length < 2 ? "0".concat(n) : n;
       }
@@ -33291,7 +33291,7 @@ const style = ({
     };
     var hexToUtf8 = function hexToUtf8(hex) {
       if (!isHexStrict(hex)) throw new Error("The parameter \"".concat(hex, "\" must be a valid HEX string."));
-      var str = '';
+      var string = '';
       var code = 0;
       hex = hex.replace(/^0x/i, '');
       hex = hex.replace(/^(?:00)*/, '');
@@ -33301,9 +33301,9 @@ const style = ({
       var l = hex.length;
       for (var i = 0; i < l; i += 2) {
         code = parseInt(hex.substr(i, 2), 16);
-        str += String.fromCharCode(code);
+        string += String.fromCharCode(code);
       }
-      return utf8.decode(str);
+      return utf8.decode(string);
     };
     var hexToNumber = function hexToNumber(value) {
       if (!value) {
@@ -33454,26 +33454,26 @@ const style = ({
       var arraySize = /^\D+\d*\[(\d+)\]$/.exec(type);
       return arraySize ? parseInt(arraySize[1], 10) : null;
     };
-    var _parseNumber = function _parseNumber(arg) {
-      var type = _typeof(arg);
+    var _parseNumber = function _parseNumber(argument) {
+      var type = _typeof(argument);
       if (type === 'string') {
-        if (isHexStrict(arg)) {
-          return new BN(arg.replace(/0x/i, ''), 16);
+        if (isHexStrict(argument)) {
+          return new BN(argument.replace(/0x/i, ''), 16);
         } else {
-          return new BN(arg, 10);
+          return new BN(argument, 10);
         }
       } else if (type === 'number') {
-        return new BN(arg);
-      } else if (isBigNumber(arg)) {
-        return new BN(arg.toString(10));
-      } else if (isBN(arg)) {
-        return arg;
+        return new BN(argument);
+      } else if (isBigNumber(argument)) {
+        return new BN(argument.toString(10));
+      } else if (isBN(argument)) {
+        return argument;
       } else {
-        throw new Error("".concat(arg, " is not a number"));
+        throw new Error("".concat(argument, " is not a number"));
       }
     };
     var _solidityPack = function _solidityPack(type, value, arraySize) {
-      var size, num;
+      var size, number;
       type = _elementaryName(type);
       if (type === 'bytes') {
         if (value.replace(/^0x/i, '').length % 2 !== 0) {
@@ -33511,44 +33511,44 @@ const style = ({
         if (size % 8 || size < 8 || size > 256) {
           throw new Error("Invalid uint".concat(size, " size"));
         }
-        num = _parseNumber(value);
-        if (num.bitLength() > size) {
-          throw new Error("Supplied uint exceeds width: ".concat(size, " vs ").concat(num.bitLength()));
+        number = _parseNumber(value);
+        if (number.bitLength() > size) {
+          throw new Error("Supplied uint exceeds width: ".concat(size, " vs ").concat(number.bitLength()));
         }
-        if (num.lt(new BN(0))) {
-          throw new Error("Supplied uint ".concat(num.toString(), " is negative"));
+        if (number.lt(new BN(0))) {
+          throw new Error("Supplied uint ".concat(number.toString(), " is negative"));
         }
-        return size ? leftPad(num.toString('hex'), size / 8 * 2) : num;
+        return size ? leftPad(number.toString('hex'), size / 8 * 2) : number;
       } else if (type.startsWith('int')) {
         if (size % 8 || size < 8 || size > 256) {
           throw new Error("Invalid int".concat(size, " size"));
         }
-        num = _parseNumber(value);
-        if (num.bitLength() > size) {
-          throw new Error("Supplied int exceeds width: ".concat(size, " vs ").concat(num.bitLength()));
+        number = _parseNumber(value);
+        if (number.bitLength() > size) {
+          throw new Error("Supplied int exceeds width: ".concat(size, " vs ").concat(number.bitLength()));
         }
-        if (num.lt(new BN(0))) {
-          return num.toTwos(size).toString('hex');
+        if (number.lt(new BN(0))) {
+          return number.toTwos(size).toString('hex');
         } else {
-          return size ? leftPad(num.toString('hex'), size / 8 * 2) : num;
+          return size ? leftPad(number.toString('hex'), size / 8 * 2) : number;
         }
       } else {
         throw new Error("Unsupported or invalid type: ".concat(type));
       }
     };
-    var _processSoliditySha3Args = function _processSoliditySha3Args(arg) {
-      if (isArray(arg)) {
+    var _processSoliditySha3Arguments = function _processSoliditySha3Arguments(argument) {
+      if (isArray(argument)) {
         throw new Error('Autodetection of array types is not supported.');
       }
       var type;
       var value = '';
-      var hexArg, arraySize;
-      if (isObject(arg) && (arg.hasOwnProperty('v') || arg.hasOwnProperty('t') || arg.hasOwnProperty('value') || arg.hasOwnProperty('type'))) {
-        type = arg.hasOwnProperty('t') ? arg.t : arg.type;
-        value = arg.hasOwnProperty('v') ? arg.v : arg.value;
+      var hexArgument, arraySize;
+      if (isObject(argument) && (argument.hasOwnProperty('v') || argument.hasOwnProperty('t') || argument.hasOwnProperty('value') || argument.hasOwnProperty('type'))) {
+        type = argument.hasOwnProperty('t') ? argument.t : argument.type;
+        value = argument.hasOwnProperty('v') ? argument.v : argument.value;
       } else {
-        type = toHex(arg, true);
-        value = toHex(arg);
+        type = toHex(argument, true);
+        value = toHex(argument);
         if (!type.startsWith('int') && !type.startsWith('uint')) {
           type = 'bytes';
         }
@@ -33565,23 +33565,23 @@ const style = ({
         }
       }
       if (isArray(value)) {
-        hexArg = value.map(function (val) {
-          return _solidityPack(type, val, arraySize).toString('hex').replace('0x', '');
+        hexArgument = value.map(function (value_) {
+          return _solidityPack(type, value_, arraySize).toString('hex').replace('0x', '');
         });
-        return hexArg.join('');
+        return hexArgument.join('');
       } else {
-        hexArg = _solidityPack(type, value, arraySize);
-        return hexArg.toString('hex').replace('0x', '');
+        hexArgument = _solidityPack(type, value, arraySize);
+        return hexArgument.toString('hex').replace('0x', '');
       }
     };
     var soliditySha3 = function soliditySha3() {
-      var args = Array.prototype.slice.call(arguments);
-      var hexArgs = map(args, _processSoliditySha3Args);
-      return sha3("0x".concat(hexArgs.join('')));
+      var arguments_ = Array.prototype.slice.call(arguments);
+      var hexArguments = map(arguments_, _processSoliditySha3Arguments);
+      return sha3("0x".concat(hexArguments.join('')));
     };
 
     var jsonInterfaceMethodToString = function jsonInterfaceMethodToString(json) {
-      if (isObject(json) && json.name && json.name.indexOf('(') !== -1) {
+      if (isObject(json) && json.name && json.name.includes('(')) {
         return json.name;
       }
       return "".concat(json.name, "(").concat(_flattenTypes(false, json.inputs).join(','), ")");
@@ -33614,7 +33614,7 @@ const style = ({
     };
     var hexToAscii = function hexToAscii(hex) {
       if (!isHexStrict(hex)) throw new Error('The parameter must be a valid HEX string.');
-      var str = '';
+      var value = '';
       var i = 0;
       var l = hex.length;
       if (hex.substring(0, 2) === '0x') {
@@ -33622,15 +33622,15 @@ const style = ({
       }
       for (; i < l; i += 2) {
         var code = parseInt(hex.substr(i, 2), 16);
-        str += String.fromCharCode(code);
+        value += String.fromCharCode(code);
       }
-      return str;
+      return value;
     };
-    var asciiToHex = function asciiToHex(str) {
+    var asciiToHex = function asciiToHex(value) {
       var length = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 32;
       var hex = '';
-      for (var i = 0; i < str.length; i++) {
-        var code = str.charCodeAt(i);
+      for (var i = 0; i < value.length; i++) {
+        var code = value.charCodeAt(i);
         var n = code.toString(16);
         hex += n.length < 2 ? "0".concat(n) : n;
       }
@@ -33704,48 +33704,48 @@ const style = ({
     var hexToBytes$1 = hexToBytes;
 
     exports.randomHex = randomhex;
-    exports.jsonInterfaceMethodToString = jsonInterfaceMethodToString;
-    exports.hexToAscii = hexToAscii;
     exports.asciiToHex = asciiToHex;
-    exports.getUnitValue = getUnitValue;
-    exports.fromWei = fromWei;
-    exports.toWei = toWei;
-    exports.toChecksumAddress = toChecksumAddress;
-    exports.keccak256 = keccak256;
-    exports.sha3 = sha3$1;
-    exports.toDecimal = toDecimal;
-    exports.hexToNumber = hexToNumber$1;
-    exports.fromDecimal = fromDecimal;
-    exports.numberToHex = numberToHex$1;
-    exports.hexToUtf8 = hexToUtf8$1;
-    exports.hexToString = hexToString;
-    exports.toUtf8 = toUtf8;
-    exports.stringToHex = stringToHex;
-    exports.fromUtf8 = fromUtf8;
-    exports.utf8ToHex = utf8ToHex$1;
-    exports.toAscii = toAscii;
+    exports.bytesToHex = bytesToHex$1;
+    exports.checkAddressChecksum = checkAddressChecksum$1;
     exports.fromAscii = fromAscii;
-    exports.padLeft = padLeft;
-    exports.padRight = padRight;
+    exports.fromDecimal = fromDecimal;
+    exports.fromUtf8 = fromUtf8;
+    exports.fromWei = fromWei;
     exports.getSignatureParameters = getSignatureParameters$1;
+    exports.getUnitValue = getUnitValue;
+    exports.hexToAscii = hexToAscii;
+    exports.hexToBytes = hexToBytes$1;
+    exports.hexToNumber = hexToNumber$1;
+    exports.hexToNumberString = hexToNumberString$1;
+    exports.hexToString = hexToString;
+    exports.hexToUtf8 = hexToUtf8$1;
     exports.isAddress = isAddress$1;
     exports.isBN = isBN$1;
-    exports.checkAddressChecksum = checkAddressChecksum$1;
-    exports.toBN = toBN$1;
-    exports.toHex = toHex$1;
-    exports.hexToNumberString = hexToNumberString$1;
-    exports.toTwosComplement = toTwosComplement$1;
+    exports.isBloom = isBloom$1;
     exports.isHex = isHex$1;
     exports.isHexStrict = isHexStrict$1;
-    exports.isBloom = isBloom$1;
     exports.isTopic = isTopic$1;
-    exports.bytesToHex = bytesToHex$1;
-    exports.hexToBytes = hexToBytes$1;
+    exports.jsonInterfaceMethodToString = jsonInterfaceMethodToString;
+    exports.keccak256 = keccak256;
+    exports.numberToHex = numberToHex$1;
+    exports.padLeft = padLeft;
+    exports.padRight = padRight;
+    exports.sha3 = sha3$1;
     exports.soliditySha3 = soliditySha3;
+    exports.stringToHex = stringToHex;
+    exports.toAscii = toAscii;
+    exports.toBN = toBN$1;
+    exports.toChecksumAddress = toChecksumAddress;
+    exports.toDecimal = toDecimal;
+    exports.toHex = toHex$1;
+    exports.toTwosComplement = toTwosComplement$1;
+    exports.toUtf8 = toUtf8;
+    exports.toWei = toWei;
+    exports.utf8ToHex = utf8ToHex$1;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
 
 },{"@babel/runtime/helpers/typeof":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/@babel/runtime/helpers/typeof.js","bn.js":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bn.js/lib/bn.js","eth-lib/lib/hash":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/eth-lib/lib/hash.js","ethjs-unit":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/ethjs-unit/lib/index.js","lodash/isArray":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isArray.js","lodash/isBoolean":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isBoolean.js","lodash/isNull":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isNull.js","lodash/isNumber":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isNumber.js","lodash/isObject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isObject.js","lodash/isString":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/isString.js","lodash/map":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/lodash/map.js","number-to-bn":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/number-to-bn/src/index.js","randomhex":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/randomhex/src/index.js","utf8":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/utf8/utf8.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/src/node_modules/getCompilerVersion.js":[function(require,module,exports){
 module.exports = getCompilerVersion
