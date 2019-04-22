@@ -30008,10 +30008,11 @@ function getDate () {
 module.exports = word => glossary[word]
 
 var glossary = {
-  pure: `PURE FUNCTION - function, that is promised not to modify or read the state.`,
-  view: `VIEW FUNCTION - function, that returns information from the Ethereum network`,
-  payable: `PAYABLE FUNCTION - function, that enables to send ETH while being called `,
-  nonpayable: `NONPAYABLE FUNCTION - function, that changes the state of the contract on the Ethereum network`
+  pure: `This function is a PURE FUNCTION, which doesn't modify nor read the state.`,
+  view: `This function is a VIEW FUNCTION (a call), which returns information from the Ethereum network`,
+  payable: `This function is a PAYABLE FUNCTION, which enables to send ETH while being called `,
+  nonpayable: `This function is a NONPAYABLE FUNCTION, which changes the state of the contract on the Ethereum network`,
+  undefined: `Type of this function is not defined.`
 }
 
 },{}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/loadingAnimation.js":[function(require,module,exports){
@@ -30715,6 +30716,7 @@ function displayContractUI(result) {   // compilation result metadata
         if (sm === 'nonpayable') return 2
         if (sm === 'pure') return 3
         if (sm === 'payable') return 4
+        if (sm === undefined) return 5
       }
     }
 
@@ -30785,7 +30787,8 @@ function displayContractUI(result) {   // compilation result metadata
     }
 
     async function makeReceipt (transaction) {
-      let receipt = await transaction.wait()
+      if (!transaction.wait) return // check when running function of not defined type
+      let receipt =  await transaction.wait()
       let linkToEtherscan = "https://" + provider._network.name  + ".etherscan.io/tx/" + receipt.transactionHash
       return bel`<div class=${css.txReturnItem}>
         <div class=${css.txReturnLeft}>
@@ -30837,6 +30840,7 @@ function displayContractUI(result) {   // compilation result metadata
         txReturn.appendChild(loader)
         if (label === 'payable' || label === 'nonpayable') var el = await makeReceipt(transaction)
         if (label === 'pure' || label === 'view') var el = await makeReturn(transaction)
+        if (label === undefined) var el = await makeReceipt(transaction) || await makeReturn(transaction)
         loader.replaceWith(el)
       } else {
         let deploy = document.querySelector("[class^='deploy']")
