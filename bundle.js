@@ -30596,12 +30596,12 @@ var provider
 var contract
 
 async function getProvider() {
-  if (window.ethereum) {
+  if (window.web3.currentProvider) {
     try {
-      // Request account access if needed
-      await ethereum.enable();
       // Acccounts now exposed
       provider = new ethers.providers.Web3Provider(window.web3.currentProvider)
+      // Request account access if needed
+      await ethereum.enable();
     } catch (error) {
       // User denied account access...
     }
@@ -30834,6 +30834,7 @@ function displayContractUI(result) {   // compilation result metadata
         let signer = await provider.getSigner()
         let contractAsCurrentSigner = contract.connect(signer)
         let transaction = await contractAsCurrentSigner.functions[fnName](...args)
+        // @TODO if (transaction._ethersType === "BigNumber") transaction = transaction.toString()
         // @TODO: what if users cancels a transaction?
         element.appendChild(txReturn)
         var loader = makeLoadingAnimation()
