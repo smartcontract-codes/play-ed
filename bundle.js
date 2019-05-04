@@ -30177,6 +30177,7 @@ var css = csjs`
       margin: 3%;
       padding: 3%;
       justify-content: space-between;
+      flex-direction: column;
     }
     .returnJSON {
 
@@ -30778,12 +30779,41 @@ function displayContractUI(result) {   // compilation result metadata
       </div>`
     }
 
-    async function makeReturn (transaction) {
-      if (!transaction.length && transaction._ethersType === "BigNumber") transaction = transaction.toString()
-      // @TODO cover all the types
-      return bel`<div class=${css.txReturnItem}>
+    function returnTypes (fnName) {
+      let abi = solcMetadata.output.abi
+      item = []
+      for (var i = 0; i < abi.length; i++) {
+      	let item = abi[i]
+      	if (item.name === fnName) return item.outputs
+      }
+    }
+
+    function decode (tx, output) {
+        if (output.type === ('bytes32')) return ethers.utils.parseBytes32String(tx)
+        else if (output.type.includes('uint')) return tx.toString()
+        else return tx
+    }
+
+    function decodeTxReturn (tx, types) {
+      var result
+      if (Array.isArray(tx)) {  // recursive case
+        result = tx.map((x, i) => decodeTxReturn(x, Array.isArray(types) ? types[i] : types))
+        return result
+      } else { // atomic case
+        decoded = decode(tx, types)
+        return decoded
+      }
+    }
+
+    async function makeReturn (transaction, fnName) {
+      let types = returnTypes(fnName)
+      if (types.length === 1) types = types[0]
+      let decodedTx = decodeTxReturn(transaction, types)
+      // @TODO check all output types (array with one el, array of objects, objects alone...)
+      return bel`
+      <div class=${css.txReturnItem}>
         <div class=${css.returnJSON}>
-          ${JSON.stringify(transaction, null, 1)}
+          ${JSON.stringify(decodedTx, null, 1)}
         </div>
       </div>`
     }
@@ -30841,8 +30871,8 @@ function displayContractUI(result) {   // compilation result metadata
         var loader = makeLoadingAnimation()
         txReturn.appendChild(loader)
         if (label === 'payable' || label === 'nonpayable') var el = await makeReceipt(transaction)
-        if (label === 'pure' || label === 'view') var el = await makeReturn(transaction)
-        if (label === undefined) var el = await makeReceipt(transaction) || await makeReturn(transaction)
+        if (label === 'pure' || label === 'view') var el = await makeReturn(transaction, fnName)
+        if (label === undefined) var el = await makeReceipt(transaction) || await makeReturn(transaction, fnName)
         loader.replaceWith(el)
       } else {
         let deploy = document.querySelector("[class^='deploy']")
@@ -30996,7 +31026,7 @@ function displayContractUI(result) {   // compilation result metadata
     var ctor = bel`
     <div class="${css.ctor}">
       ${metadata.constructorInput}
-      <div class=${css.deploy} onclick=${()=>deployContract()}>
+      <div class=${css.deploy} onclick=${()=>deployContract()} title="Deploy the contract first (this executes the Constructor function). After that you will be able to start sending/receiving data using the contract functions below.">
         <div class=${css.deployTitle}>Deploy</div>
         <i class="${css.icon} fa fa-arrow-circle-right"></i>
       </div>
@@ -33251,19 +33281,26 @@ const style = ({
       return "0x".concat(toBN(number).toTwos(256).toString(16, 64));
     };
     var isAddress = function isAddress(address) {
+      var chainId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
         return false;
       } else if (/^(0x|0X)?[0-9a-f]{40}$/.test(address) || /^(0x|0X)?[0-9A-F]{40}$/.test(address)) {
         return true;
       } else {
-        return checkAddressChecksum(address);
+        return checkAddressChecksum(address, chainId);
       }
     };
+    var stripHexPrefix = function stripHexPrefix(string) {
+      return string.slice(0, 2) === '0x' ? string.slice(2) : string;
+    };
     var checkAddressChecksum = function checkAddressChecksum(address) {
-      address = address.replace(/^0x/i, '');
-      var addressHash = sha3(address.toLowerCase()).replace(/^0x/i, '');
-      for (var i = 0; i < 40; i++) {
-        if (parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i] || parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i]) {
+      var chainId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var stripAddress = stripHexPrefix(address).toLowerCase();
+      var prefix = chainId != null ? chainId.toString() + '0x' : '';
+      var keccakHash = Hash.keccak256(prefix + stripAddress).toString('hex').replace(/^0x/i, '');
+      for (var i = 0; i < stripAddress.length; i++) {
+        var output = parseInt(keccakHash[i], 16) >= 8 ? stripAddress[i].toUpperCase() : stripAddress[i];
+        if (stripHexPrefix(address)[i] !== output) {
           return false;
         }
       }
@@ -33396,19 +33433,19 @@ const style = ({
       }
       return false;
     };
-    var SHA3_NULL_S = '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470';
-    var sha3 = function sha3(value) {
+    var KECCAK256_NULL_S = '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470';
+    var keccak256 = function keccak256(value) {
       if (isHexStrict(value) && /^0x/i.test(value.toString())) {
         value = hexToBytes(value);
       }
       var returnValue = Hash.keccak256(value);
-      if (returnValue === SHA3_NULL_S) {
+      if (returnValue === KECCAK256_NULL_S) {
         return null;
       } else {
         return returnValue;
       }
     };
-    sha3._Hash = Hash;
+    keccak256._Hash = Hash;
     var getSignatureParameters = function getSignatureParameters(signature) {
       if (!isHexStrict(signature)) {
         throw new Error("Given value \"".concat(signature, "\" is not a valid hex string."));
@@ -33424,6 +33461,32 @@ const style = ({
         v: v
       };
     };
+
+    var utils = /*#__PURE__*/Object.freeze({
+        isBN: isBN,
+        isBigNumber: isBigNumber,
+        toBN: toBN,
+        toTwosComplement: toTwosComplement,
+        isAddress: isAddress,
+        stripHexPrefix: stripHexPrefix,
+        checkAddressChecksum: checkAddressChecksum,
+        leftPad: leftPad,
+        rightPad: rightPad,
+        utf8ToHex: utf8ToHex,
+        hexToUtf8: hexToUtf8,
+        hexToNumber: hexToNumber,
+        hexToNumberString: hexToNumberString,
+        numberToHex: numberToHex,
+        bytesToHex: bytesToHex,
+        hexToBytes: hexToBytes,
+        toHex: toHex,
+        isHexStrict: isHexStrict,
+        isHex: isHex,
+        isBloom: isBloom,
+        isTopic: isTopic,
+        keccak256: keccak256,
+        getSignatureParameters: getSignatureParameters
+    });
 
     var _elementaryName = function _elementaryName(name) {
       if (name.startsWith('int[')) {
@@ -33583,7 +33646,7 @@ const style = ({
     var soliditySha3 = function soliditySha3() {
       var arguments_ = Array.prototype.slice.call(arguments);
       var hexArguments = map(arguments_, _processSoliditySha3Arguments);
-      return sha3("0x".concat(hexArguments.join('')));
+      return keccak256("0x".concat(hexArguments.join('')));
     };
 
     var jsonInterfaceMethodToString = function jsonInterfaceMethodToString(json) {
@@ -33652,34 +33715,34 @@ const style = ({
     var fromWei = function fromWei(number, unit) {
       unit = getUnitValue(unit);
       if (!isBN(number) && !isString(number)) {
-        throw new Error('Please pass numbers as strings or BigNumber objects to avoid precision errors.');
+        throw new Error('Please pass numbers as strings or BN objects to avoid precision errors.');
       }
       return isBN(number) ? ethjsUnit.fromWei(number, unit) : ethjsUnit.fromWei(number, unit).toString(10);
     };
     var toWei = function toWei(number, unit) {
       unit = getUnitValue(unit);
       if (!isBN(number) && !isString(number)) {
-        throw new Error('Please pass numbers as strings or BigNumber objects to avoid precision errors.');
+        throw new Error('Please pass numbers as strings or BN objects to avoid precision errors.');
       }
       return isBN(number) ? ethjsUnit.toWei(number, unit) : ethjsUnit.toWei(number, unit).toString(10);
     };
     var toChecksumAddress = function toChecksumAddress(address) {
-      if (typeof address === 'undefined') return '';
+      var chainId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      if (typeof address !== 'string') {
+        return '';
+      }
       if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) throw new Error("Given address \"".concat(address, "\" is not a valid Ethereum address."));
-      address = address.toLowerCase().replace(/^0x/i, '');
-      var addressHash = sha3(address).replace(/^0x/i, '');
+      var stripAddress = stripHexPrefix$1(address).toLowerCase();
+      var prefix = chainId != null ? chainId.toString() + '0x' : '';
+      var keccakHash = Hash.keccak256(prefix + stripAddress).toString('hex').replace(/^0x/i, '');
       var checksumAddress = '0x';
-      for (var i = 0; i < address.length; i++) {
-        if (parseInt(addressHash[i], 16) > 7) {
-          checksumAddress += address[i].toUpperCase();
-        } else {
-          checksumAddress += address[i];
-        }
+      for (var i = 0; i < stripAddress.length; i++) {
+        checksumAddress += parseInt(keccakHash[i], 16) >= 8 ? stripAddress[i].toUpperCase() : stripAddress[i];
       }
       return checksumAddress;
     };
-    var keccak256 = sha3;
-    var sha3$1 = sha3;
+    var keccak256$1 = keccak256;
+    var sha3 = keccak256;
     var toDecimal = hexToNumber;
     var hexToNumber$1 = hexToNumber;
     var fromDecimal = numberToHex;
@@ -33708,7 +33771,9 @@ const style = ({
     var isTopic$1 = isTopic;
     var bytesToHex$1 = bytesToHex;
     var hexToBytes$1 = hexToBytes;
+    var stripHexPrefix$1 = stripHexPrefix;
 
+    exports.BN = BN;
     exports.randomHex = randomhex;
     exports.asciiToHex = asciiToHex;
     exports.bytesToHex = bytesToHex$1;
@@ -33732,13 +33797,14 @@ const style = ({
     exports.isHexStrict = isHexStrict$1;
     exports.isTopic = isTopic$1;
     exports.jsonInterfaceMethodToString = jsonInterfaceMethodToString;
-    exports.keccak256 = keccak256;
+    exports.keccak256 = keccak256$1;
     exports.numberToHex = numberToHex$1;
     exports.padLeft = padLeft;
     exports.padRight = padRight;
-    exports.sha3 = sha3$1;
+    exports.sha3 = sha3;
     exports.soliditySha3 = soliditySha3;
     exports.stringToHex = stringToHex;
+    exports.stripHexPrefix = stripHexPrefix$1;
     exports.toAscii = toAscii;
     exports.toBN = toBN$1;
     exports.toChecksumAddress = toChecksumAddress;
