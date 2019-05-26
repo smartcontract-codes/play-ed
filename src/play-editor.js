@@ -15,22 +15,21 @@ module.exports = playeditor
 
 function playeditor (opts = {}, theme = defaultTheme) {
   const code = `
-pragma solidity ^0.5.2;
 
-contract HelloWorld {
+pragma solidity >=0.4.0 <0.7.0;
 
-    uint8 public num;
+contract SimpleStorage {
 
-    event NewNum(address indexed _who, uint8 _newNum, uint _timestamp);
+    uint8 storedData;
 
-    constructor(uint8 _num) public {
-        num = _num;
+    function set(uint8 x) public {
+        storedData = x;
     }
 
-    function setNum(uint8 _newNum) public {
-        num = _newNum;
-        emit NewNum(msg.sender, _newNum, now);
+    function get() public view returns (uint8) {
+        return storedData;
     }
+
 }
 `
   const ed = {

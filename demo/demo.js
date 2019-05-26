@@ -32,22 +32,18 @@ document.head.appendChild(style)
 
 function contract () {
   return `
-pragma solidity ^0.5.2;
+  pragma solidity >=0.4.0 <0.7.0;
 
-contract HelloWorld {
+  contract SimpleStorage {
+      uint8 storedData;
 
-    uint8 public num;
+      function set(uint8 x) public {
+          storedData = x;
+      }
 
-    event NewNum(address indexed _who, uint8 _newNum, uint _timestamp);
-
-    constructor(uint8 _num) public {
-        num = _num;
-    }
-
-    function setNum(uint8 _newNum) public {
-        num = _newNum;
-        emit NewNum(msg.sender, _newNum, now);
-    }
-}
+      function get() public view returns (uint8) {
+          return storedData;
+      }
+  }
 `
 }
