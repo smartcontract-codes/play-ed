@@ -32283,9 +32283,9 @@ function loadingAnimation (colors) {
     width: 4px;
     height: 4px;
     top: 45%;
-    left: 80%;
+    left: 78%;
     background-color: ${colors.whiteSmoke};
-    animation: rotatemove 1s infinite;
+    animation: rotatemove 1.5s infinite;
     border-radius: 50%;
   }
 
@@ -32310,15 +32310,48 @@ function loadingAnimation (colors) {
 
 },{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/makeReturn.js":[function(require,module,exports){
 const bel = require("bel")
-const date = require('getDate')
-const shortenHexData = require('shortenHexData')
-const copy = require('copy-text-to-clipboard')
 const moreInfo = require('moreInfo')
 const getReturnData = require('getReturnData')
+const csjs = require('csjs-inject')
+const colors = require('theme')
 
 module.exports = makeReturn
 
-async function makeReturn (css, contract, solcMetadata, provider, transaction, fnName) {
+var css = csjs`
+.txReturnItem {
+  position: relative;
+  font-size: 0.7rem;
+  display: flex;
+  color: ${colors.whiteSmoke};
+  border: 1px solid ${colors.darkSmoke};
+  width: 87%;
+  margin: 3%;
+  padding: 3%;
+  justify-content: space-between;
+  flex-direction: column;
+}
+.txReceipt {
+  display:flex;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+.txReturnField {
+  display:flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  margin-bottom: 1%;
+}
+.txReturnValue {
+  color: ${colors.slateGrey};
+  cursor: pointer;
+  word-break: break-all;
+}
+.txReturnValue:hover {
+  cursor: pointer;
+  opacity: 0.6;
+}`
+
+async function makeReturn (contract, solcMetadata, provider, transaction, fnName) {
   var decodedTx
   var data
   var opts
@@ -32348,7 +32381,7 @@ function makeTxReturn (css, data) {
     </div>`
 }
 
-},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","copy-text-to-clipboard":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/copy-text-to-clipboard/index.js","getDate":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/getDate.js","getReturnData":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/getReturnData.js","moreInfo":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/moreInfo.js","shortenHexData":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/shortenHexData.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/moreInfo.js":[function(require,module,exports){
+},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","getReturnData":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/getReturnData.js","moreInfo":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/moreInfo.js","theme":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/theme.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/moreInfo.js":[function(require,module,exports){
 const colors = require('theme')
 const bel = require('bel')
 const csjs = require('csjs-inject')
@@ -32485,7 +32518,7 @@ var css = csjs`
       border: 2px dashed ${colors.darkSmoke};
       border-top: none;
       min-width: 230px;
-      top: -55px;
+      top: -41px;
       left: 20px;
       min-height: 80px;
       width: 546px;
@@ -32519,12 +32552,7 @@ var css = csjs`
       display:flex;
       justify-content: flex-start;
       flex-direction: column;
-      margin-bottom: 1%;
-    }
-    .txReturnTitle {
-      color: ${colors.lightGrey};
-      margin-right: 5px;
-      width: 50%;
+      margin-bottom: 2%;
     }
     .txReturnValue {
       color: ${colors.slateGrey};
@@ -32534,6 +32562,11 @@ var css = csjs`
     .txReturnValue:hover {
       cursor: pointer;
       opacity: 0.6;
+    }
+    .txReturnTitle {
+      color: ${colors.lightGrey};
+      margin-right: 5px;
+      width: 50%;
     }
     .contractName {
       cursor: pointer;
@@ -32621,7 +32654,7 @@ var css = csjs`
       display: flex;
       align-items: baseline;
       bottom: -16px;
-      right: 22px;
+      right: 13px;
       font-size: 2rem;
       position: absolute;
       background-color: ${colors.dark};
@@ -32717,18 +32750,18 @@ var css = csjs`
       font-size: 0.9em;
     }
     .output {
-      font-size: 1rem;
+      font-size: 0.7rem;
       display: flex;
-      align-self: flex-end;
+      align-self: center;
     }
     .valError {
       color: ${colors.violetRed};
-      padding-left: 20px;
+      padding-left: 13px;
       cursor: pointer;
     }
     .valSuccess {
       color: ${colors.aquaMarine};
-      padding-left: 20px;
+      padding-left: 10px;
       cursor: pointer;
     }
     .inputContainer {
@@ -33027,7 +33060,7 @@ function displayContractUI(result) {   // compilation result metadata
       return inputContainer
       function cb (msg) {
         var output = inputContainer.lastChild
-        output.innerHTML = msg ? `<a class=${css.valError} title="${msg}"><i class="fa fa-exclamation-circle"></i></a>` : `<a class=${css.valSuccess} title="The value is valid."><i class="fa fa-check-circle"></i></a>`
+        output.innerHTML = msg ? `<a class=${css.valError} title="${msg}"><i class="fa fa-exclamation"></i></a>` : `<a class=${css.valSuccess} title="The value is valid."><i class="fa fa-check"></i></a>`
       }
     }
 
@@ -33079,7 +33112,7 @@ function displayContractUI(result) {   // compilation result metadata
           let contractAsCurrentSigner = contract.connect(signer)
           var transaction = await contractAsCurrentSigner.functions[fnName](...args)
           let abi = solcMetadata.output.abi
-          loader.replaceWith(await makeReturn(css, contract, solcMetadata, provider, transaction, fnName))
+          loader.replaceWith(await makeReturn(contract, solcMetadata, provider, transaction, fnName))
         } catch (e) { txReturn.children.length > 1 ? txReturn.removeChild(loader) : container.removeChild(txReturn) }
       } else {
         let deploy = document.querySelector("[class^='deploy']")
