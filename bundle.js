@@ -36103,7 +36103,7 @@ function randomBytes (size, cb) {
 module.exports = getCompilerVersion
 
 function getCompilerVersion (releases, code) {
-  var regex = /pragma solidity ([><=\^]*)(\d+\.\d+\.\d+)?\s*([><=\^]*)(\d+\.\d+\.\d+)?;/
+  var regex = /pragma solidity\s*([><=\^]*)\s*(\d+\.\d+\.\d+)?\s*([><=\^]*)\s*(\d+\.\d+\.\d+)?;/
   var [ pragma,op1, min, op2, max] = code.match(regex)
   if (pragma) {
     if (max) {
