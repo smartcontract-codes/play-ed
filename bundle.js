@@ -27629,6 +27629,21 @@ function displayAddressInput ({ theme: { classes: css }, cb }) {
   }
 }
 
+},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","solidity-validator":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solidity-validator/src/index.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-array/node_modules/input-byte/src/input-byte.js":[function(require,module,exports){
+const bel = require('bel')
+const csjs = require('csjs-inject')
+const validator = require('solidity-validator')
+
+module.exports = displayByteInput
+
+function displayByteInput ({ theme: { classes: css }, cb }) {
+  return input = bel`<div class=${css.byteField}> <input class=${css.inputField} data-type="byte" oninput=${validate} placeholder='xyz'> </div>`
+  function validate (e) {
+    let value = e.target.value
+    cb(validator.getMessage('byte', value), value)
+  }
+}
+
 },{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","solidity-validator":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solidity-validator/src/index.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-array/src/input-array.js":[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
@@ -27693,7 +27708,7 @@ function getParsedArray (type) {
   return arr.reverse()
 }
 
-},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","input-address":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-address/src/input-address.js","input-boolean":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-boolean/src/input-boolean.js","input-byte":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-byte/src/input-byte.js","input-integer":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-integer/src/input-integer.js","input-string":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-string/src/input-string.js","solidity-validator":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solidity-validator/src/index.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-boolean/src/input-boolean.js":[function(require,module,exports){
+},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","input-address":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-address/src/input-address.js","input-boolean":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-boolean/src/input-boolean.js","input-byte":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-array/node_modules/input-byte/src/input-byte.js","input-integer":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-integer/src/input-integer.js","input-string":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-string/src/input-string.js","solidity-validator":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solidity-validator/src/index.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-boolean/src/input-boolean.js":[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
 const validator = require('solidity-validator')
@@ -27737,7 +27752,7 @@ const validator = require('solidity-validator')
 module.exports = displayByteInput
 
 function displayByteInput ({ theme: { classes: css }, cb }) {
-  return input = bel`<div class=${css.byteField}> <input class=${css.inputField} data-type="byte" oninput=${validate} placeholder='xyz'> </div>`
+  return input = bel`<div class=${css.byteField}> <input class=${css.inputField} data-type="byte" oninput=${validate} placeholder='0x...'> </div>`
   function validate (e) {
     let value = e.target.value
     cb(validator.getMessage('byte', value), value)
@@ -32147,17 +32162,21 @@ const ethers = require('ethers')
 module.exports = getArgs
 
 function getArgs( element, selector ) {
+  debugger
   var args = []
   var fields = element.querySelectorAll(`[class^=${selector}]`)
-
-  fields.forEach(x => {
+  for (var i=0; i<fields.length; i++) {
+    var x = fields[i]
     let title = x.children[0].title
-    if (title.includes('[')) {  // if type is an array
-      var argumentsInArr = []
-      if (title.includes('bool')) {  // if it's an array of booleans
+    if (title === 'payable') {
+      console.log ('Payable functionality - work in progress!')
+    } else {
+      if (title.includes('[')) {  // if type is an array
+        var argumentsInArr = []
+        if (title.includes('bool')) {  // if it's an array of booleans
         let inputs = x.querySelectorAll("[class^='booleanField']")
         inputs.forEach(y => {
-            argumentsInArr.push(getBool(y))
+          argumentsInArr.push(getBool(y))
         })
       } else { // in any other type of array
         var inputs = x.querySelectorAll('input')
@@ -32168,17 +32187,19 @@ function getArgs( element, selector ) {
         })
       }
       args.push(argumentsInArr)
+      }
+      else if (title.includes('bool')) { // if not an array, but boolean
+        var boolField = x.querySelector("[class^='booleanField']")
+        args.push(getBool(boolField))
+      }
+      else { // not an array (inputs.length = 1) and not a boolean
+        let el = title.includes('int') ? x.querySelectorAll('input')[1] : x.querySelector('input')
+        let val = el.value
+        args.push(getArgument(el, val))
+      }
     }
-    else if (title.includes('bool')) { // if not an array, but boolean
-      var boolField = x.querySelector("[class^='booleanField']")
-      args.push(getBool(boolField))
-    }
-    else { // not an array (inputs.length = 1) and not a boolean
-      let el = title.includes('int') ? x.querySelectorAll('input')[1] : x.querySelector('input')
-      let val = el.value
-      args.push(getArgument(el, val))
-    }
-  })
+
+  }
   return args
 }
 
@@ -32269,7 +32290,92 @@ var glossary = {
   undefined: `Type of this function is not defined.`
 }
 
-},{}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/loadingAnimation.js":[function(require,module,exports){
+},{}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/input-payable.js":[function(require,module,exports){
+const bel = require("bel")
+const colors = require('theme')
+const csjs = require("csjs-inject")
+var css
+
+module.exports = inputPayable
+
+function inputPayable (label) {
+
+  return bel`
+    <div class=${css.inputContainer}>
+      <div class=${css.title} title="data type: ${label}">value</div>
+      <div class=${css.inputArea}>
+        <input class=${css.input} placeholder="123">
+        ${currencySelector()}
+      </div>
+      <div class=${css.ethIcon} title="Select amount you want to send with this function!"><i class="fab fa-ethereum"></i></div>
+    </div>`
+}
+
+function currencySelector () {
+  var button = bel`
+    <select class=${css.currency} onclick=${(e) => exchangeCurrency(e)}>
+      <option value="wei">wei</option>
+      <option value="babbage">babbage</option>
+      <option value="lovelace">lovelace</option>
+      <option value="shannon">shannon</option>
+      <option value="szabo">szabo</option>
+      <option value="finney">finney</option>
+      <option value="ether">ether</option>
+    </select>`
+  return button
+}
+
+function exchangeCurrency (e) {
+  console.log(e.target.value)
+}
+
+css = csjs`
+.inputContainer {
+  display: flex;
+  align-items: center;
+  margin: 15px 0 15px 0;
+}
+.title {
+  justify-content: center;
+  color: ${colors.slateGrey};
+  font-size: 0.9rem;
+  display: flex;
+  min-width: 200px;
+}
+.inputArea {
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+}
+.input {
+  width: 194px;
+  background-color: ${colors.darkSmoke};
+  border-radius: 0.2em;
+  color: ${colors.whiteSmoke};
+  border: 1px solid ${colors.slateGrey};
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 5px;
+  margin-right: 5px;
+}
+.currency {
+  width: 88px;
+  border-radius: 0.2em;
+  border: 1px solid ${colors.slateGrey};
+  padding: 5px 7px;
+  color: ${colors.slateGrey};
+  background-color: ${colors.darkSmoke};
+}
+.ethIcon {
+  color: ${colors.violetRed};
+  font-size: 1.2rem;
+  display: flex;
+  align-self: center;
+  padding-left: 10px;
+}
+`
+
+},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","theme":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/theme.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/loadingAnimation.js":[function(require,module,exports){
 const bel = require("bel")
 const csjs = require("csjs-inject")
 
@@ -32308,7 +32414,67 @@ function loadingAnimation (colors) {
   return bel`<div class=${css.loader}></div>`
 }
 
-},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/makeReturn.js":[function(require,module,exports){
+},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/makeDeployReceipt.js":[function(require,module,exports){
+const bel = require("bel")
+const csjs = require('csjs-inject')
+const colors = require('theme')
+const date = require('getDate')
+const copy = require('copy-text-to-clipboard')
+const moreInfo = require('moreInfo')
+
+module.exports = makeDeployReceipt
+
+var css = csjs`
+.txReceipt {
+  display:flex;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+.txReturnField {
+  display:flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  margin-bottom: 2%;
+}
+.txReturnTitle {
+  color: ${colors.lightGrey};
+  margin-right: 5px;
+  width: 50%;
+}
+.txReturnValue {
+  color: ${colors.slateGrey};
+  cursor: pointer;
+  word-break: break-all;
+}
+.txReturnValue:hover {
+  cursor: pointer;
+  opacity: 0.6;
+}
+.date {}
+`
+
+function makeDeployReceipt (provider, contract) {
+  var el = bel`
+    <div class=${css.txReceipt}>
+      <div class=${css.txReturnField}>
+        <div class=${css.txReturnTitle}>published</div>
+        <div class=${css.txReturnValue}>${date()}</div>
+      </div>
+      <div class=${css.txReturnField} title="${contract.deployTransaction.creates}" onclick=${()=>copy(contract.deployTransaction.creates)}>
+        <div class=${css.txReturnTitle}>contract address (${provider._network.name}):</div>
+        <div class=${css.txReturnValue}>${contract.deployTransaction.creates}</div>
+      </div>
+      <div class=${css.txReturnField} title="${contract.deployTransaction.from}" onclick=${()=>copy(contract.deployTransaction.from)}>
+        <div class=${css.txReturnTitle}>published by</div>
+        <div class=${css.txReturnValue}>${contract.deployTransaction.from}</div>
+      </div>
+    </div>
+  `
+  el.appendChild(moreInfo(provider._network.name, contract.deployTransaction.hash))
+  return el
+}
+
+},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","copy-text-to-clipboard":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/copy-text-to-clipboard/index.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","getDate":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/getDate.js","moreInfo":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/moreInfo.js","theme":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/theme.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/makeReturn.js":[function(require,module,exports){
 const bel = require("bel")
 const moreInfo = require('moreInfo')
 const getReturnData = require('getReturnData')
@@ -32429,14 +32595,14 @@ function theme () {
     white: "#ffffff", // borders, font on input background
     dark: "#2c323c", //background dark
     darkSmoke: '#21252b',  // separators
-    whiteSmoke: "#f5f5f5", // background light
+    whiteSmoke: "#dcd7d7", // background light
     slateGrey: "#8a929b", // text
     lightGrey: "#F1F2EB",
-    violetRed: "#b25068",  // used as red in types (bool etc.)
+    violetRed: "#fd547d",  // used as red in types (bool etc.)
     aquaMarine: "#90FCF9",  // used as green in types (bool etc.)
     turquoise: "#14b9d5",
     yellow: "#F2CD5D",
-    lavender: "#EDC9FF",
+    lavender: "#db94ff",
     androidGreen: "#9BC53D"
   }
   return colors
@@ -32448,8 +32614,8 @@ const colors = require('theme')
 const csjs = require("csjs-inject")
 const ethers = require('ethers')
 const glossary = require('glossary')
-const date = require('getDate')
 const loadingAnimation = require('loadingAnimation')
+const makeDeployReceipt = require('makeDeployReceipt')
 const getArgs = require('getArgs')
 const makeReturn = require('makeReturn')
 const shortenHexData = require('shortenHexData')
@@ -32460,459 +32626,18 @@ const inputInteger = require("input-integer")
 const inputBoolean = require("input-boolean")
 const inputString = require("input-string")
 const inputByte = require("input-byte")
+const inputPayable = require("input-payable")
 const copy = require('copy-text-to-clipboard')
-const moreInfo = require('moreInfo')
 
 // Styling variables
 
-var fonts = [
-  "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css",
-  'https://fonts.googleapis.com/css?family=Overpass+Mono'
-]
+var css
+var fonts = [ "https://use.fontawesome.com/releases/v5.8.2/css/all.css",
+  'https://fonts.googleapis.com/css?family=Overpass+Mono']
 var fontAwesome = bel`<link href=${fonts[0]} rel='stylesheet' type='text/css'>`
 var overpassMono = bel`<link href=${fonts[1]} rel='stylesheet' type='text/css'>`
 document.head.appendChild(fontAwesome)
 document.head.appendChild(overpassMono)
-
-var css = csjs`
-  @media only screen and (max-width: 3000px) {
-    .preview {
-      padding: 1% 2%;
-      min-width: 350px;
-      min-height: 100vh;
-      font-family: 'Overpass Mono', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: ${colors.dark};
-      color: ${colors.whiteSmoke};
-    }
-    .error {
-      border: 1px solid ${colors.violetRed};
-      position: relative;
-      padding: 1em;
-    }
-    .errorTitle {
-      position: absolute;
-      top: -14px;
-      left: 20px;
-      background-color: ${colors.dark};
-      padding: 0 5px 0 5px;
-      font-size: 1.3rem;
-      color: ${colors.violetRed};
-    }
-    .errorIcon {
-      font-size: 1.3rem;
-    }
-    .visible {
-      visibility: visible;
-      height: 100%;
-      padding: 0;
-    }
-    .hidden {
-      visibility: hidden;
-      height: 0;
-    }
-    .txReturn {
-      position: relative;
-      border: 2px dashed ${colors.darkSmoke};
-      border-top: none;
-      min-width: 230px;
-      top: -41px;
-      left: 20px;
-      min-height: 80px;
-      width: 546px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    .deploying {
-      font-size: 0.8rem;
-      margin-left: 3%;
-    }
-    .txReturnItem {
-      position: relative;
-      font-size: 0.7rem;
-      display: flex;
-      color: ${colors.whiteSmoke};
-      border: 1px solid ${colors.darkSmoke};
-      width: 87%;
-      margin: 3%;
-      padding: 3%;
-      justify-content: space-between;
-      flex-direction: column;
-    }
-    .txReceipt {
-      display:flex;
-      justify-content: flex-start;
-      flex-direction: column;
-    }
-    .txReturnField {
-      display:flex;
-      justify-content: flex-start;
-      flex-direction: column;
-      margin-bottom: 2%;
-    }
-    .txReturnValue {
-      color: ${colors.slateGrey};
-      cursor: pointer;
-      word-break: break-all;
-    }
-    .txReturnValue:hover {
-      cursor: pointer;
-      opacity: 0.6;
-    }
-    .txReturnTitle {
-      color: ${colors.lightGrey};
-      margin-right: 5px;
-      width: 50%;
-    }
-    .contractName {
-      cursor: pointer;
-      font-size: 2rem;
-      font-weight: bold;
-      color: ${colors.whiteSmoke};
-      margin: 10px 0 20px 10px;
-      display: flex;
-      align-items: end;
-    }
-    .contractName:hover {
-      cursor: pointer;
-      opacity: 0.6;
-    }
-    .fnName {
-      font-size: 1em;
-      display: flex;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .faIcon {
-      position: absolute;
-      top: -16px;
-      left: 0;
-    }
-    .name {
-      font-size: 0.9em;
-    }
-    .stateMutability {
-      margin-left: 5px;
-      color: ${colors.whiteSmoke};
-      border-radius: 20px;
-      border: 1px solid;
-      padding: 1px;
-      font-size: 1rem;
-      width: 65px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .constructorFn {
-      padding-top: 18px;
-      width: 600px;
-    }
-    .functions {
-      font-size: 1.3rem;
-      width: 570px;
-    }
-    .title {
-      font-size: 1.3rem;
-      display: flex;
-      align-items: baseline;
-      position: absolute;
-      top: -13px;
-      left: 20px;
-      background-color: ${colors.dark};
-    }
-    .title:hover {
-      cursor: pointer;
-      opacity: 0.6;
-    }
-    .deployTitle {
-      font-size: 1.3rem;
-      background-color: ${colors.dark};
-      padding: 0 5px 0 0;
-      font-weight: 800;
-    }
-    .deploy {
-      color: ${colors.whiteSmoke};
-      display: flex;
-      align-items: center;
-      bottom: -15px;
-      right: -12px;
-      font-size: 1.8rem;
-      position: absolute;
-      background-color: ${colors.dark};
-      cursor: pointer;
-    }
-    .deploy:hover {
-      opacity: 0.6;
-    }
-    .send {
-      display: flex;
-      align-items: baseline;
-      bottom: -16px;
-      right: 13px;
-      font-size: 2rem;
-      position: absolute;
-      background-color: ${colors.dark};
-      color: ${colors.darkSmoke};
-      padding-right: 5px;
-    }
-    .send:hover {
-      opacity: 0.6;
-      cursor: pointer;
-    }
-    .bounce {
-      animation: bounceRight 2s infinite;
-    }
-    @-webkit-keyframes bounceRight {
-    0% {-webkit-transform: translateX(0);
-      transform: translateX(0);}
-    20% {-webkit-transform: translateX(0);
-      transform: translateX(0);}
-    40% {-webkit-transform: translateX(-30px);
-      transform: translateX(-30px);}
-    50% {-webkit-transform: translateX(0);
-      transform: translateX(0);}
-    60% {-webkit-transform: translateX(-15px);
-      transform: translateX(-15px);}
-    80% {-webkit-transform: translateX(0);
-      transform: translateX(0);}
-    100% {-webkit-transform: translateX(0);
-      transform: translateX(0);}
-    }
-    @-moz-keyframes bounceRight {
-      0% {transform: translateX(0);}
-      20% {transform: translateX(0);}
-      40% {transform: translateX(-30px);}
-      50% {transform: translateX(0);}
-      60% {transform: translateX(-15px);}
-      80% {transform: translateX(0);}
-      100% {transform: translateX(0);}
-    }
-    @keyframes bounceRight {
-      0% {-ms-transform: translateX(0);
-        transform: translateX(0);}
-      20% {-ms-transform: translateX(0);
-        transform: translateX(0);}
-      40% {-ms-transform: translateX(-30px);
-        transform: translateX(-30px);}
-      50% {-ms-transform: translateX(0);
-        transform: translateX(0);}
-      60% {-ms-transform: translateX(-15px);
-        transform: translateX(-15px);}
-      80% {-ms-transform: translateX(0);
-        transform: translateX(0);}
-      100% {-ms-transform: translateX(0);
-        transform: translateX(0);}
-    }
-    .fnContainer {
-      position: relative;
-    }
-    .function {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      margin-left: 20px;
-      margin-bottom: 10%;
-      border: 2px dashed ${colors.darkSmoke};
-    }
-    .topContainer {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      border: 2px dashed ${colors.darkSmoke};
-      padding: 20px;
-      width: 540px;
-      margin: 0 0 5em 20px;
-      font-size: 0.75em;
-    }
-    .ctor {}
-    .signature {}
-    .date {}
-    .pure {
-      background-color: ${colors.yellow};
-    }
-    .view {
-      color: ${colors.lavender};
-    }
-    .nonpayable {
-      color: ${colors.turquoise};
-    }
-    .payable {
-      color: ${colors.violetRed};
-    }
-    .icon {
-      margin-left: 5px;
-      font-size: 0.9em;
-    }
-    .output {
-      font-size: 0.7rem;
-      display: flex;
-      align-self: center;
-    }
-    .valError {
-      color: ${colors.violetRed};
-      padding-left: 13px;
-      cursor: pointer;
-    }
-    .valSuccess {
-      color: ${colors.aquaMarine};
-      padding-left: 10px;
-      cursor: pointer;
-    }
-    .inputContainer {
-      font-family: 'Overpass Mono', sans-serif;
-      margin: 15px 0 15px 0;
-      display: flex;
-      align-items: center;
-      font-size: 1rem;
-      color: ${colors.whiteSmoke};
-    }
-    .inputParam {
-      color: ${colors.slateGrey};
-      display: flex;
-      justify-content: center;
-      font-size: 0.8rem;
-      display: flex;
-      min-width: 200px;
-    }
-    .inputFields {
-    }
-    .inputType {
-    }
-    .inputField {
-      ${inputStyle()}
-      font-size: 0.8rem;
-      color: ${colors.whiteSmoke};
-      border-color: ${colors.whiteSmoke};
-      background-color: ${colors.darkSmoke};
-      text-align: center;
-      display: flex;
-      width: 100%;
-    }
-    .inputField::placeholder {
-      color: ${colors.whiteSmoke};
-      text-align: center;
-      opacity: 0.5;
-    }
-    .integerValue {
-      ${inputStyle()}
-      font-size: 1rem;
-      color: ${colors.whiteSmoke};
-      background-color: ${colors.darkSmoke};
-      display: flex;
-      text-align: center;
-      width: 25%;
-    }
-    .integerValue::placeholder {
-      color: ${colors.whiteSmoke};
-      text-align: center;
-      opacity: 0.5;
-    }
-    .integerSlider {
-      width: 75%;
-      border: 1px solid ${colors.whiteSmoke};
-      -webkit-appearance: none;
-      height: 0.2px;
-    }
-    .integerSlider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      border: 1px solid ${colors.whiteSmoke};
-      height: 22px;
-      width: 10px;
-      background: ${colors.darkSmoke};
-      cursor: pointer;
-    }
-    .integerField {
-      display: flex;
-      width: 300px;
-      align-items: center;
-    }
-    .booleanField {
-      display: flex;
-      width: 300px;
-      align-items: baseline;
-      font-size: 0.8rem;
-    }
-    .stringField {
-      display: flex;
-      width: 300px;
-      justify-content: center;
-    }
-    .byteField {
-      display: flex;
-      width: 300px;
-      justify-content: center;
-    }
-    .addressField {
-      display: flex;
-      width: 300px;
-      justify-content: center;
-    }
-    .keyField {
-      ${inputStyle()}
-      border-right: none;
-      background-color: ${colors.aquaMarine};
-      border-color: ${colors.whiteSmoke};
-    }
-    .false {
-      ${inputStyle()}
-      border-right: none;
-      background-color: ${colors.violetRed};
-      color: ${colors.whiteSmoke};
-      width: 50%;
-      text-align: center;
-      border-color: ${colors.whiteSmoke};
-      cursor: pointer;
-    }
-    .true {
-      ${inputStyle()}
-      color: ${colors.whiteSmoke};
-      border-color: ${colors.whiteSmoke};
-      width: 50%;
-      text-align: center;
-      cursor: pointer;
-    }
-    .arrayContainer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 10px;
-    }
-    .arrayPlusMinus {
-      margin: 10px;
-    }
-    .arrayPlus {
-      cursor: pointer;
-    }
-    .arrayMinus {
-      cursor: pointer;
-    }
-  }
-  @media only screen and (max-device-width: 480px) {
-    html {
-      font-size: 30px;
-    }
-    .constructorFn, .functions {
-      width: 80%;
-    }
-    .title {
-      top: -30px;
-    }
-  }
-`
-
-function inputStyle() {
-  return `
-    border: 1px solid ${colors.whiteSmoke};
-    background-color: ${colors.dark};
-    padding: 5px;
-  `
-}
 
 /******************************************************************************
   ETHERS
@@ -33087,7 +32812,7 @@ function displayContractUI(result) {   // compilation result metadata
       var title = bel`<div class=${css.title} onclick=${e=>toggle(e, null, null)}>${fnName}</div>`
       var send = bel`<div class=${css.send} onclick=${e => sendTx(fn.name, label, e)}><i class="${css.icon} fa fa-arrow-circle-right"></i></div>`
       var functionClass = css[label]
-      return bel`
+      var el = bel`
       <div class=${css.fnContainer}>
         <div class="${functionClass} ${css.function}">
           ${title}
@@ -33097,6 +32822,8 @@ function displayContractUI(result) {   // compilation result metadata
           </ul>
         </div>
       </div>`
+      if (label === 'payable')  send.parentNode.prepend(inputPayable(label))
+      return el
     }
 
     async function sendTx (fnName, label, e) {
@@ -33209,7 +32936,7 @@ function displayContractUI(result) {   // compilation result metadata
         contract = instance
         let deployed = await contract.deployed()
         topContainer.innerHTML = ''
-        topContainer.appendChild(makeDeployReceipt(contract))
+        topContainer.appendChild(makeDeployReceipt(provider, contract))
         activateSendTx(contract)
       } catch (e) {
         let loader = document.querySelector("[class^='deploying']")
@@ -33226,28 +32953,6 @@ function displayContractUI(result) {   // compilation result metadata
         sendButtons[i].style.color = colors.whiteSmoke
       }
     }
-
-    function makeDeployReceipt (contract) {
-      var el = bel`
-        <div class=${css.txReceipt}>
-          <div class=${css.txReturnField}>
-            <div class=${css.txReturnTitle}>published</div>
-            <div class=${css.txReturnValue}>${date()}</div>
-          </div>
-          <div class=${css.txReturnField} title="${contract.deployTransaction.creates}" onclick=${()=>copy(contract.deployTransaction.creates)}>
-            <div class=${css.txReturnTitle}>contract address (${provider._network.name}):</div>
-            <div class=${css.txReturnValue}>${contract.deployTransaction.creates}</div>
-          </div>
-          <div class=${css.txReturnField} title="${contract.deployTransaction.from}" onclick=${()=>copy(contract.deployTransaction.from)}>
-            <div class=${css.txReturnTitle}>published by</div>
-            <div class=${css.txReturnValue}>${contract.deployTransaction.from}</div>
-          </div>
-        </div>
-      `
-      el.appendChild(moreInfo(provider._network.name, contract.deployTransaction.hash))
-      return el
-    }
-
 
     var topContainer = bel`<div class=${css.topContainer}></div>`
     var ctor = bel`<div class="${css.ctor}">
@@ -33273,7 +32978,432 @@ function displayContractUI(result) {   // compilation result metadata
   }
 }
 
-},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","copy-text-to-clipboard":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/copy-text-to-clipboard/index.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","ethers":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/ethers/dist/ethers.min.js","getArgs":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/getArgs.js","getDate":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/getDate.js","glossary":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/glossary.js","input-address":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-address/src/input-address.js","input-array":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-array/src/input-array.js","input-boolean":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-boolean/src/input-boolean.js","input-byte":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-byte/src/input-byte.js","input-integer":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-integer/src/input-integer.js","input-string":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-string/src/input-string.js","loadingAnimation":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/loadingAnimation.js","makeReturn":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/makeReturn.js","moreInfo":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/moreInfo.js","shortenHexData":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/shortenHexData.js","solidity-validator":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solidity-validator/src/index.js","theme":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/theme.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solc-import/src/combineSource.js":[function(require,module,exports){
+/******************************************************************************
+  CSS
+******************************************************************************/
+
+css = csjs`
+  @media only screen and (max-width: 3000px) {
+    .preview {
+      padding: 1% 2%;
+      min-width: 350px;
+      min-height: 100vh;
+      font-family: 'Overpass Mono', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: ${colors.dark};
+      color: ${colors.whiteSmoke};
+    }
+    .error {
+      border: 1px solid ${colors.violetRed};
+      position: relative;
+      padding: 1em;
+    }
+    .errorTitle {
+      position: absolute;
+      top: -14px;
+      left: 20px;
+      background-color: ${colors.dark};
+      padding: 0 5px 0 5px;
+      font-size: 1.3rem;
+      color: ${colors.violetRed};
+    }
+    .errorIcon {
+      font-size: 1.3rem;
+    }
+    .visible {
+      visibility: visible;
+      height: 100%;
+      padding: 0;
+    }
+    .hidden {
+      visibility: hidden;
+      height: 0;
+    }
+    .txReturn {
+      position: relative;
+      border: 2px dashed ${colors.darkSmoke};
+      border-top: none;
+      min-width: 230px;
+      top: -41px;
+      left: 20px;
+      min-height: 80px;
+      width: 546px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .deploying {
+      font-size: 0.9rem;
+      margin-left: 3%;
+    }
+    .txReturnItem {
+      position: relative;
+      font-size: 0.7rem;
+      display: flex;
+      color: ${colors.whiteSmoke};
+      border: 1px solid ${colors.darkSmoke};
+      width: 87%;
+      margin: 3%;
+      padding: 3%;
+      justify-content: space-between;
+      flex-direction: column;
+    }
+    .contractName {
+      cursor: pointer;
+      font-size: 2rem;
+      font-weight: bold;
+      color: ${colors.whiteSmoke};
+      margin: 10px 0 20px 10px;
+      display: flex;
+      align-items: end;
+    }
+    .contractName:hover {
+      ${hover()}
+    }
+    .fnName {
+      font-size: 1em;
+      display: flex;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .faIcon {
+      position: absolute;
+      top: -16px;
+      left: 0;
+    }
+    .name {
+      font-size: 0.9em;
+    }
+    .stateMutability {
+      margin-left: 5px;
+      color: ${colors.whiteSmoke};
+      border-radius: 20px;
+      border: 1px solid;
+      padding: 1px;
+      font-size: 0.9rem;
+      width: 65px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .constructorFn {
+      padding-top: 18px;
+      width: 600px;
+    }
+    .functions {
+      font-size: 1.3rem;
+      width: 570px;
+    }
+    .title {
+      font-size: 1.3rem;
+      display: flex;
+      align-items: baseline;
+      position: absolute;
+      top: -13px;
+      left: 20px;
+      background-color: ${colors.dark};
+    }
+    .title:hover {
+      ${hover()}
+    }
+    .deployTitle {
+      font-size: 1.3rem;
+      background-color: ${colors.dark};
+      padding: 0 5px 0 0;
+      font-weight: 800;
+    }
+    .deploy {
+      color: ${colors.whiteSmoke};
+      display: flex;
+      align-items: center;
+      bottom: -15px;
+      right: -12px;
+      font-size: 1.8rem;
+      position: absolute;
+      background-color: ${colors.dark};
+      cursor: pointer;
+    }
+    .deploy:hover {
+      ${hover()}
+    }
+    .send {
+      display: flex;
+      align-items: baseline;
+      bottom: -16px;
+      right: 13px;
+      font-size: 2rem;
+      position: absolute;
+      background-color: ${colors.dark};
+      color: ${colors.darkSmoke};
+      padding-right: 5px;
+    }
+    .send:hover {
+      ${hover()}
+    }
+    .bounce {
+      animation: bounceRight 2s infinite;
+    }
+    @-webkit-keyframes bounceRight {
+    0% {-webkit-transform: translateX(0);
+      transform: translateX(0);}
+    20% {-webkit-transform: translateX(0);
+      transform: translateX(0);}
+    40% {-webkit-transform: translateX(-30px);
+      transform: translateX(-30px);}
+    50% {-webkit-transform: translateX(0);
+      transform: translateX(0);}
+    60% {-webkit-transform: translateX(-15px);
+      transform: translateX(-15px);}
+    80% {-webkit-transform: translateX(0);
+      transform: translateX(0);}
+    100% {-webkit-transform: translateX(0);
+      transform: translateX(0);}
+    }
+    @-moz-keyframes bounceRight {
+      0% {transform: translateX(0);}
+      20% {transform: translateX(0);}
+      40% {transform: translateX(-30px);}
+      50% {transform: translateX(0);}
+      60% {transform: translateX(-15px);}
+      80% {transform: translateX(0);}
+      100% {transform: translateX(0);}
+    }
+    @keyframes bounceRight {
+      0% {-ms-transform: translateX(0);
+        transform: translateX(0);}
+      20% {-ms-transform: translateX(0);
+        transform: translateX(0);}
+      40% {-ms-transform: translateX(-30px);
+        transform: translateX(-30px);}
+      50% {-ms-transform: translateX(0);
+        transform: translateX(0);}
+      60% {-ms-transform: translateX(-15px);
+        transform: translateX(-15px);}
+      80% {-ms-transform: translateX(0);
+        transform: translateX(0);}
+      100% {-ms-transform: translateX(0);
+        transform: translateX(0);}
+    }
+    .fnContainer {
+      position: relative;
+    }
+    .function {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-left: 20px;
+      margin-bottom: 10%;
+      border: 2px dashed ${colors.darkSmoke};
+    }
+    .topContainer {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border: 2px dashed ${colors.darkSmoke};
+      padding: 2em 2em 3em 2em;
+      width: 540px;
+      margin: 0 0 5em 20px;
+      font-size: 0.75em;
+    }
+    .ctor {}
+    .signature {}
+    .pure {
+      background-color: ${colors.yellow};
+    }
+    .view {
+      color: ${colors.lavender};
+    }
+    .nonpayable {
+      color: ${colors.turquoise};
+    }
+    .payable {
+      color: ${colors.violetRed};
+    }
+    .icon {
+      margin-left: 5px;
+      font-size: 0.9em;
+    }
+    .output {
+      font-size: 0.7rem;
+      display: flex;
+      align-self: center;
+    }
+    .valError {
+      color: ${colors.violetRed};
+      padding-left: 13px;
+      cursor: pointer;
+    }
+    .valSuccess {
+      color: ${colors.aquaMarine};
+      padding-left: 10px;
+    }
+    .inputContainer {
+      font-family: 'Overpass Mono', sans-serif;
+      margin: 15px 0 15px 0;
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      color: ${colors.whiteSmoke};
+    }
+    .inputParam {
+      color: ${colors.slateGrey};
+      display: flex;
+      justify-content: center;
+      font-size: 0.9rem;
+      display: flex;
+      min-width: 200px;
+    }
+    .inputFields {
+    }
+    .inputType {
+    }
+    .inputField {
+      ${inputStyle()}
+      font-size: 0.9rem;
+      color: ${colors.whiteSmoke};
+      border-color: ${colors.slateGrey};
+      border-radius: 0.2em;
+      background-color: ${colors.darkSmoke};
+      text-align: center;
+      display: flex;
+      width: 100%;
+    }
+    .inputField::placeholder {
+      color: ${colors.whiteSmoke};
+      text-align: center;
+      opacity: 0.5;
+    }
+    .integerValue {
+      ${inputStyle()}
+      font-size: 0.9rem;
+      color: ${colors.whiteSmoke};
+      background-color: ${colors.darkSmoke};
+      border-radius: 0.2em;
+      display: flex;
+      text-align: center;
+      width: 60%;
+    }
+    .integerValue::placeholder {
+      color: ${colors.whiteSmoke};
+      text-align: center;
+      opacity: 0.5;
+    }
+    .integerSlider {
+      width: 40%;
+      border: 1px solid ${colors.slateGrey};
+      background: ${colors.darkSmoke};
+      -webkit-appearance: none;
+      height: 1px;
+    }
+    .integerSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      border: 1px solid ${colors.slateGrey};
+      border-radius: 0.2em;
+      height: 22px;
+      width: 10px;
+      background: ${colors.darkSmoke};
+      cursor: pointer;
+    }
+    .integerField {
+      display: flex;
+      width: 300px;
+      align-items: center;
+    }
+    .booleanField {
+      display: flex;
+      width: 300px;
+      align-items: baseline;
+      font-size: 0.9rem;
+    }
+    .stringField {
+      display: flex;
+      width: 300px;
+      justify-content: center;
+    }
+    .byteField {
+      display: flex;
+      width: 300px;
+      justify-content: center;
+    }
+    .addressField {
+      display: flex;
+      width: 300px;
+      justify-content: center;
+    }
+    .keyField {
+      ${inputStyle()}
+      border-right: none;
+      background-color: ${colors.aquaMarine};
+      border-color: ${colors.whiteSmoke};
+    }
+    .false {
+      ${inputStyle()}
+      border-right: none;
+      background-color: ${colors.violetRed};
+      color: ${colors.whiteSmoke};
+      width: 50%;
+      text-align: center;
+      border-color: ${colors.whiteSmoke};
+      cursor: pointer;
+    }
+    .true {
+      ${inputStyle()}
+      color: ${colors.whiteSmoke};
+      border-color: ${colors.whiteSmoke};
+      width: 50%;
+      text-align: center;
+      cursor: pointer;
+    }
+    .arrayContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .arrayPlusMinus {
+      margin: 10px;
+    }
+    .arrayPlus {
+      cursor: pointer;
+    }
+    .arrayMinus {
+      cursor: pointer;
+    }
+  }
+  @media only screen and (max-device-width: 480px) {
+    html {
+      font-size: 30px;
+    }
+    .constructorFn, .functions {
+      width: 80%;
+    }
+    .title {
+      top: -30px;
+    }
+  }
+`
+
+function inputStyle() {
+  return `
+    border: 1px solid ${colors.slateGrey};
+    background-color: ${colors.dark};
+    padding: 5px;
+  `
+}
+
+function hover () {
+  return `
+    cursor: pointer;
+    opacity: 0.6;
+  `
+}
+
+},{"bel":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/bel/browser.js","copy-text-to-clipboard":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/copy-text-to-clipboard/index.js","csjs-inject":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/csjs-inject/index.js","ethers":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/ethers/dist/ethers.min.js","getArgs":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/getArgs.js","glossary":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/glossary.js","input-address":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-address/src/input-address.js","input-array":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-array/src/input-array.js","input-boolean":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-boolean/src/input-boolean.js","input-byte":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-byte/src/input-byte.js","input-integer":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-integer/src/input-integer.js","input-payable":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/input-payable.js","input-string":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/input-string/src/input-string.js","loadingAnimation":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/loadingAnimation.js","makeDeployReceipt":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/makeDeployReceipt.js","makeReturn":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/makeReturn.js","shortenHexData":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/shortenHexData.js","solidity-validator":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solidity-validator/src/index.js","theme":"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/smartcontract-app/src/node_modules/theme.js"}],"/home/ninabreznik/Documents/code/ethereum/play/play-editor/node_modules/solc-import/src/combineSource.js":[function(require,module,exports){
 const getImports = require('./getImports');
 const isExistImport = require('./isExistImport');
 
@@ -36247,6 +36377,13 @@ module.exports = playeditor
 
 function playeditor (opts = {}, theme = defaultTheme) {
   const code = `
+/*
+You can use Play editor with any contract.
+Paste it in the editor and wait for the preview to start interacting with it.
+
+**To interact with the contract you will need a Metamask extension.
+*/
+
 
 pragma solidity >=0.4.0 <0.7.0;
 
