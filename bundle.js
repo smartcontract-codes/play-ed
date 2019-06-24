@@ -39586,8 +39586,7 @@ const style = ({
 .chatLink {
   font-size: 0.8rem;
   color: white;
-  padding: 3%;
-  width: 160px;
+  width: 115px;
   display: flex;
   height: 45px;
   text-decoration: none;
@@ -39595,6 +39594,7 @@ const style = ({
 }
 .chatLink:hover {
   opacity: 0.8;
+  cursor: pointer;
 }
 .logo {
   width: 50px;
