@@ -36,7 +36,7 @@
     "coding-editor": "0.0.5",
     "csjs-inject": "1.0.1",
     "play-logo": "4.0.2",
-    "smartcontract-app": "^4.5.13",
+    "smartcontract-app": "^4.5.14",
     "solc-js": "git+https://github.com/ethereum-play/solc-js.git",
     "twm": "0.0.3"
   }

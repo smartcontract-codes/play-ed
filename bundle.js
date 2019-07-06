@@ -35338,8 +35338,6 @@ function getArgs( element, selector ) {
 }
 
 function getByte (el) {
-  ethers
-  debugger
   return el.value
 }
 
