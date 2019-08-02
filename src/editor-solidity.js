@@ -12,8 +12,37 @@ const getCompilerVersion = require('getCompilerVersion')
 const defaultTheme = require('./theme.js')
 
 // ------------------------------------------------------------------------
-// FRAME COMMUNICATION 1/2
+// blinking title notification
+var x = void 0, y = void 0, title = void 0
+setTimeout(() => (title = document.title), 0)
+function updateTitle () {
+  var bool = true
+  x = setInterval(() => {
+    document.title = (bool = !bool) ? '[💚] ' + title : '[💜] ' + title
+  }, 100)
+  y = setTimeout(() => {
+    clearInterval(x)
+    document.title = title
+    y = x = void 0
+  }, 10000)
+}
+function clearTitle () {
+  if (x && y) {
+    clearInterval(x)
+    clearInterval(y)
+    x = y = void 0
+    document.title = title
+  }
+}
+// document.addEventListener('visibilitychange', function () {
+//   if (document.hidden)
+//   document.title = document.hidden; // change tab text for demo
+// })
+window.addEventListener('focus', clearTitle)
 
+// window.addEventListener('blur', function() { document.title = 'not focused' })
+// ------------------------------------------------------------------------
+// FRAME COMMUNICATION 1/2
 var counter = 1
 const editors = {}
 
@@ -23,6 +52,9 @@ window.addEventListener('message', event => {
     console.log('[opener]', [id, from, path, ref, type, body])
     var editor = editors[path]
     if (!editor) console.error('unexpected message')
+    clearTitle()
+    if (document.hidden) updateTitle()
+
     editor.el.api.setValue(body.data)
   }
 })
@@ -32,7 +64,7 @@ window.addEventListener('message', event => {
 module.exports = playeditor
 
 function playeditor (opts = {}, theme = defaultTheme) {
-  const id = `/editor/${editors.length}`
+  const id = `/editor/${Object.keys(editors).length}`
   const code = `
 /*
 You can use Play editor with any contract.

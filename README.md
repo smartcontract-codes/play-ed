@@ -1,10 +1,10 @@
-# play-editor
+# editor-solidity
 embeddable solidity editor
 
 # usage (module) - `this module is work in progress`
-`npm install play-editor`
+`npm install editor-solidity`
 ```js
-const playeditor = require('play-editor')
+const solidityeditor = require('editor-solidity')
 
 // for now, see `demo.js`
 ```
@@ -17,9 +17,12 @@ const playeditor = require('play-editor')
   <body>
     <iframe src="https://ethereum-play.github.io/play-editor"></iframe>
     <script>
-      var playeditor = document.querySelector('iframe')
+      var solidityeditor = document.querySelector('iframe')
 
-      // @TODO: not yet implemented
+      // @TODO: not yet fully implemented
+
+      // @NOTE: it is possible to .postMessage file content to the iframe editor
+      //        which will be opened
 
     </script>
   </body>
