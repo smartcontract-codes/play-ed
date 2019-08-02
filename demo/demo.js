@@ -1,6 +1,6 @@
-const playeditor = require('../')
+const solidityeditor = require('../')
 
-document.title = 'play-editor'
+document.title = 'editor-solidity'
 
 const style = document.createElement('style')
 style.setAttribute('class', 'base')
@@ -18,15 +18,15 @@ document.head.appendChild(style)
 // }
 // var boxes = [...Array(4)].map(makeBox)
 // boxes.forEach(el => document.body.appendChild(el))
-;[playeditor({ name: 'contract.sol' }),
-// playeditor({ value: contract() }, {
+;[solidityeditor({ name: 'contract.sol' }),
+// solidityeditor({ value: contract() }, {
 //   color1: 'red',
 //   color2: 'green',
 //   color3: 'yellow',
 //   color4: 'olive'
 // }),
-// playeditor({ value: contract() }),
-// playeditor()
+// solidityeditor({ value: contract() }),
+// solidityeditor()
 // ].forEach((el, i) => boxes[i].appendChild(el))
 ].forEach((el, i) => document.body.appendChild(el))
 

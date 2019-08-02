@@ -11,9 +11,28 @@ const getCompilerVersion = require('getCompilerVersion')
 
 const defaultTheme = require('./theme.js')
 
+// ------------------------------------------------------------------------
+// FRAME COMMUNICATION 1/2
+
+var counter = 1
+const editors = {}
+
+window.addEventListener('message', event => {
+  if (event.source === window.opener) {
+    const [id, from, path, ref, type, body] = event.data
+    console.log('[opener]', [id, from, path, ref, type, body])
+    var editor = editors[path]
+    if (!editor) console.error('unexpected message')
+    editor.el.api.setValue(body.data)
+  }
+})
+
+// ------------------------------------------------------------------------
+
 module.exports = playeditor
 
 function playeditor (opts = {}, theme = defaultTheme) {
+  const id = `/editor/${editors.length}`
   const code = `
 /*
 You can use Play editor with any contract.
@@ -75,6 +94,21 @@ contract SimpleStorage {
     }, 0)
   }
   ed.el.api.on('change', debounce((api) => update()))
+
+  // ------------------------------------------------------------------------
+  // FRAME COMMUNICATION 2/2
+
+  editors[id] = ed
+  if (window.opener) window.opener.postMessage([
+    counter++,       // id (= message id)
+    id,              // from
+    `/`,             // path
+    0,               // ref (=initiate new communucation)
+    'ready',         // type
+    void 0           // body
+  ], '*')
+
+  // ------------------------------------------------------------------------
 
   const out = { el: bel`<p>OUTPUT</b>`, name: 'output.json' }
   const sc = { el: bel`<div style="height:100%;"></div>`, /*name: 'preview'*/ }
