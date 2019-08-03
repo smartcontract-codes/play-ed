@@ -47,8 +47,9 @@ const solidityeditor = require('editor-solidity')
 </html>
 ```
 
+![play ed](https://i.imgur.com/L05pecp.png)
+
+
 ## License
 
 MIT
-
-![play ed](https://i.imgur.com/L05pecp.png)
