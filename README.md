@@ -51,4 +51,4 @@ const solidityeditor = require('editor-solidity')
 
 MIT
 
-[play ed](https://imgur.com/DWaXdYD)
+![play ed](https://imgur.com/DWaXdYD)
