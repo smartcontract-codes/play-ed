@@ -35842,8 +35842,7 @@ window.addEventListener('message', event => {
     if (!editor) console.error('unexpected message')
     clearTitle()
     if (document.hidden) updateTitle()
-
-    editor.el.api.setValue(body.data)
+    editor.el.api.setValue(body.source)
   }
 })
 
