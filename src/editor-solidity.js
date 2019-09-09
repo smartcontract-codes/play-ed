@@ -9,7 +9,21 @@ const twm = require('twm')
 const menubar = require('menubar')
 const getCompilerVersion = require('getCompilerVersion')
 
+const solcversion = require('solc-version/src/processList')
+
 const defaultTheme = require('./theme.js')
+
+// ------------------------------------------------------------------------
+// fetch known compiler versions
+var list, requestID
+;(async () => {
+  try {
+    list = localStorage['list']
+  } catch (e) {
+    list = await fetch('https://solc-bin.ethereum.org/bin/list.json').then(x => x.text())
+    localStorage['list'] = list
+  }
+})()
 
 // ------------------------------------------------------------------------
 // blinking title notification
@@ -54,7 +68,25 @@ window.addEventListener('message', event => {
     if (!editor) console.error('unexpected message')
     clearTitle()
     if (document.hidden) updateTitle()
-    editor.el.api.setValue(body.source)
+    if (requestID) clearInterval(requestID)
+    if (list) {
+      _update()
+    } else {
+      requestID = setInterval(_update, 100)
+    }
+    function _update () {
+      if (list) {
+        var source = body.source
+        var arr = source.split('\n')
+        if (arr[1].startsWith(' *Submitted for verification at Etherscan.io on')) {
+          source = arr.slice(4).join('\n')
+        }
+        editor.el.api.compiler = body.metadata.compilerVersion
+        editor.el.api.setValue(source)
+        clearInterval(requestID)
+        requestID = null
+      }
+    }
   }
 })
 
@@ -98,15 +130,21 @@ contract SimpleStorage {
   }
   var select, releases, nightly, all
   update()
-  async function update () {
-    if (!select) {
-      select = await solcjs.versions()
-      releases = select.releases
-      nightly = select.nightly
-      all = select.all
-    }
+  async function update (version) {
+    ed.el.api.compiler = void 0
     const sourcecode = ed.el.api.getValue()
-    const version = getCompilerVersion(releases, sourcecode)
+    if (!version) {
+      if (!select) {
+        select = await solcjs.versions()
+        releases = select.releases
+        nightly = select.nightly
+        all = select.all
+      }
+      version = getCompilerVersion(releases, sourcecode)
+    } else {
+      const _list = solcversion(list)
+      version = Object.entries(_list.all).filter(x => x[1] === `soljson-${version}.js`)[0][0]
+    }
     const compiler = await solcjs(version)
     var id = setTimeout(async () => {
       try {
@@ -124,7 +162,7 @@ contract SimpleStorage {
       output.el.textContent = JSON.stringify(result)
     }, 0)
   }
-  ed.el.api.on('change', debounce((api) => update()))
+  ed.el.api.on('change', debounce((api) => update(api.compiler)))
 
   // ------------------------------------------------------------------------
   // FRAME COMMUNICATION 2/2

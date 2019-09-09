@@ -39,6 +39,7 @@
     "play-logo": "4.0.2",
     "smartcontract-app": "^4.5.17",
     "solc-js": "git+https://github.com/ethereum-play/solc-js.git",
+    "solc-version": "^0.2.2",
     "twm": "0.0.3"
   }
 }
