@@ -35855,9 +35855,8 @@ const defaultTheme = require('./theme.js')
 // fetch known compiler versions
 var list, requestID
 ;(async () => {
-  try {
-    list = localStorage['list']
-  } catch (e) {
+  list = localStorage['list']
+  if (!list) {
     list = await fetch('https://solc-bin.ethereum.org/bin/list.json').then(x => x.text())
     localStorage['list'] = list
   }
