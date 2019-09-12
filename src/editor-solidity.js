@@ -95,7 +95,7 @@ module.exports = playeditor
 
 function playeditor (opts = {}, theme = defaultTheme) {
   const id = `/editor/${Object.keys(editors).length}`
-  const code = `
+  const code = localStorage['source'] || `
 /*
 You can use Play editor with any contract.
 Paste it in the editor and wait for the preview to start interacting with it.
@@ -127,11 +127,13 @@ contract SimpleStorage {
       lineNumbers: true,
     }, theme),
   }
+  ed.el.api.compiler = localStorage['compiler']
   var select, releases, nightly, all
   update()
   async function update (version) {
     ed.el.api.compiler = void 0
     const sourcecode = ed.el.api.getValue()
+
     if (!version) {
       if (!select) {
         select = await solcjs.versions()
@@ -144,6 +146,9 @@ contract SimpleStorage {
       const _list = solcversion(list)
       version = Object.entries(_list.all).filter(x => x[1] === `soljson-${version}.js`)[0][0]
     }
+    localStorage['source'] = sourcecode
+    localStorage['compiler'] = version
+
     const compiler = await solcjs(version)
     var id = setTimeout(async () => {
       try {
