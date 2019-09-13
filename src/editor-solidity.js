@@ -163,7 +163,7 @@ contract SimpleStorage {
       var el = smartcontract(result)
       scapp.el.innerHTML = ''
       scapp.el.appendChild(el)
-      output.el.textContent = JSON.stringify(result)
+      output.el.textContent = JSON.stringify(result, 0, 2)
     }, 0)
   }
   ed.el.api.on('change', debounce((api) => update(api.compiler)))
@@ -183,7 +183,7 @@ contract SimpleStorage {
 
   // ------------------------------------------------------------------------
 
-  const out = { el: bel`<p>OUTPUT</b>`, name: 'output.json' }
+  const out = { el: bel`<pre>{}</pre>`, name: 'output.json' }
   const sc = { el: bel`<div style="height:100%;"></div>`, /*name: 'preview'*/ }
   var items = [
     // { title: 'editor',
