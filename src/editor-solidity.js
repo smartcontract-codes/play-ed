@@ -141,7 +141,7 @@ contract SimpleStorage {
         nightly = select.nightly
         all = select.all
       }
-      version = getCompilerVersion(releases, sourcecode)
+      version = getCompilerVersion(releases, sourcecode) || releases[0]
     } else {
       const _list = solcversion(list)
       version = Object.entries(_list.all).filter(x => x[1] === `soljson-${version}.js`)[0][0]

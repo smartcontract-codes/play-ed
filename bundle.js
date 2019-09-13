@@ -35979,7 +35979,7 @@ contract SimpleStorage {
         nightly = select.nightly
         all = select.all
       }
-      version = getCompilerVersion(releases, sourcecode)
+      version = getCompilerVersion(releases, sourcecode) || releases[0]
     } else {
       const _list = solcversion(list)
       version = Object.entries(_list.all).filter(x => x[1] === `soljson-${version}.js`)[0][0]
@@ -36105,7 +36105,8 @@ module.exports = getCompilerVersion
 
 function getCompilerVersion (releases, code) {
   var regex = /pragma solidity\s*([><=\^]*)\s*(\d+\.\d+\.\d+)?\s*([><=\^]*)\s*(\d+\.\d+\.\d+)?;/
-  var [ pragma,op1, min, op2, max] = code.match(regex)
+  const result = code.match(regex) || []
+  var [ pragma,op1, min, op2, max] = result
   if (pragma) {
     if (max) {
       for (var i = 0, len = releases.length; i < len; i++) {
