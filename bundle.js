@@ -36104,7 +36104,7 @@ function debounce (fn) {
 module.exports = getCompilerVersion
 
 function getCompilerVersion (releases, code) {
-  var regex = /pragma solidity\s*([><=\^]*)\s*(\d+\.\d+\.\d+)?\s*([><=\^]*)\s*(\d+\.\d+\.\d+)?;/
+  var regex = /\s*pragma\s*solidity\s*([><=\^]*)\s*(\d+\.\d+\.\d+)?\s*([><=\^]*)\s*(\d+\.\d+\.\d+)?;/
   const result = code.match(regex) || []
   var [ pragma,op1, min, op2, max] = result
   if (pragma) {
