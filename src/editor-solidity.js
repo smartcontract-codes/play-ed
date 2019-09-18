@@ -149,12 +149,24 @@ contract SimpleStorage {
     localStorage['source'] = sourcecode
     localStorage['compiler'] = version
 
-    const compiler = await solcjs(version)
     var id = setTimeout(async () => {
+      scapp.el.innerHTML = ''
       try {
+        const compiler = await solcjs(version)
         var result = await compiler(sourcecode)
       } catch (e) {
-        var el = bel`<pre style="color: red;">${JSON.stringify(e, 0 , 2)}</pre>`
+        const stack = e.stack
+        var el
+        if (stack) {
+          //const errormsg = JSON.stringify(stack.split('\n'), 0, 2)
+          const errormsg = `Error: Contract could not be compiled. Try another
+          pragma solidity version.`
+          el = bel`<pre class=${css.errormsg}>${errormsg}</pre>`
+          // @todo: pretest stuff
+        } else {
+          const errormsg = JSON.stringify(e, 0, 2)
+          el = bel`<pre class=${css.errormsg}">${errormsg}</pre>`
+        }
         scapp.el.innerHTML = ''
         scapp.el.appendChild(el)
         output.el.textContent = ''
@@ -242,6 +254,10 @@ const css = csjs`
     flex-grow: 1;
     height: 100%;
     width: 100%;
+  }
+  .errormsg {
+    color: red;
+    padding: 2rem 0 0 2rem;
   }
 `
 /******************************************************************************
