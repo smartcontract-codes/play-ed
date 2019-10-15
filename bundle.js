@@ -53184,6 +53184,12 @@ contract SimpleStorage {
   ed.el.api.compiler = localStorage['compiler']
   var select, releases, nightly, all
   update()
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey === true && e.key === 's') {
+      e.preventDefault()
+      update()
+    }
+  })
   async function update (version) {
     ed.el.api.compiler = void 0
     const sourcecode = ed.el.api.getValue()
@@ -53231,8 +53237,9 @@ contract SimpleStorage {
       scapp.el.appendChild(el)
       output.el.textContent = JSON.stringify(result, 0, 2)
     }, 0)
+
   }
-  ed.el.api.on('change', debounce((api) => update(api.compiler)))
+  // ed.el.api.on('change', debounce((api) => update(api.compiler)))
 
   // ------------------------------------------------------------------------
   // FRAME COMMUNICATION 2/2
