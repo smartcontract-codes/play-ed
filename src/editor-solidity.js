@@ -97,13 +97,10 @@ function playeditor (opts = {}, theme = defaultTheme) {
   const id = `/editor/${Object.keys(editors).length}`
   const code = localStorage['source'] || `
 /*
-
 You can use Play editor with any contract.
 Paste it in the editor and wait for the preview to start interacting with it.
-To interact with the contract you will need a Metamask extension.
 
-**Compile          ctrl+s (ctrl+s)
-
+**To interact with the contract you will need a Metamask extension.
 */
 
 
@@ -136,7 +133,7 @@ contract SimpleStorage {
   window.addEventListener('keydown', (e) => {
     if (e.ctrlKey === true && e.key === 's') {
       e.preventDefault()
-      update()
+      //update()
     }
   })
   async function update (version) {
@@ -186,9 +183,8 @@ contract SimpleStorage {
       scapp.el.appendChild(el)
       output.el.textContent = JSON.stringify(result, 0, 2)
     }, 0)
-
   }
-  // ed.el.api.on('change', debounce((api) => update(api.compiler)))
+  ed.el.api.on('change', debounce((api) => update(api.compiler)))
 
   // ------------------------------------------------------------------------
   // FRAME COMMUNICATION 2/2
@@ -266,7 +262,7 @@ const css = csjs`
     width: 100%;
   }
   .errormsg {
-    color: red;
+    color: #eaecee;
     padding: 2rem 0 0 2rem;
   }
 `
@@ -274,7 +270,7 @@ const css = csjs`
   HELPER
 ******************************************************************************/
 function debounce (fn) {
-  const wait = 100
+  const wait = 2000
   var timeout, context, args
   const exec = () => {
     fn.apply(context, args)
