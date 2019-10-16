@@ -32,16 +32,6 @@ document.head.appendChild(style)
 
 function contract () {
   return `
-  /*
-
-  You can use Play editor with any contract.
-  Paste it in the editor and wait for the preview to start interacting with it.
-  To interact with the contract you will need a Metamask extension.
-
-  **Compile          ctrl+s (ctrl+s)
-
-  */
-
   pragma solidity >=0.4.0 <0.7.0;
 
   contract SimpleStorage {
