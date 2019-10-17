@@ -130,12 +130,12 @@ contract SimpleStorage {
   ed.el.api.compiler = localStorage['compiler']
   var select, releases, nightly, all
   update()
-  window.addEventListener('keydown', (e) => {
-    if (e.ctrlKey === true && e.key === 's') {
-      e.preventDefault()
-      //update()
-    }
-  })
+  // window.addEventListener('keydown', (e) => {
+  //   if (e.ctrlKey === true && e.key === 's') {
+  //     e.preventDefault()
+  //     //update()
+  //   }
+  // })
   async function update (version) {
     ed.el.api.compiler = void 0
     const sourcecode = ed.el.api.getValue()
