@@ -270,7 +270,7 @@ const css = csjs`
   HELPER
 ******************************************************************************/
 function debounce (fn) {
-  const wait = 2000
+  const wait = 100
   var timeout, context, args
   const exec = () => {
     fn.apply(context, args)
