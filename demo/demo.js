@@ -32,7 +32,7 @@ document.head.appendChild(style)
 
 function contract () {
   return `
-  pragma solidity >=0.4.0 <0.7.0;
+  pragma solidity 0.5.9;
 
   contract SimpleStorage {
       uint8 storedData;
