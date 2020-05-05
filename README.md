@@ -1,8 +1,9 @@
 # play ed
 
-in the browser lightweight editor based on code mirror with `smart contract iu`
+lightweight in-browser solidity editor based on code mirror with `smart contract ui`
+ (can be used stand alone or embedded (iframe))
 
-[Demo](https://ethereum-play.github.io/editor-solidity/)
+[Demo](https://playproject-io.github.io/play-ed/)
 
 ## How can I help?
 
@@ -16,7 +17,7 @@ in the browser lightweight editor based on code mirror with `smart contract iu`
 
 To deploy a contract, all you need are:
 
-* [Play editor](https://play.ethereum.org/editor-solidity/) &
+* [Play editor](https://playproject-io/play-ed/) &
 * [Metamask](https://metamask.io/)
 
 ### using it as a module - `this module is work in progress`
@@ -33,7 +34,7 @@ const solidityeditor = require('editor-solidity')
 <html>
   <head><meta charset="utf-8"></head>
   <body>
-    <iframe src="https://ethereum-play.github.io/play-editor"></iframe>
+    <iframe src="https://playproject-io.github.io/play-ed/"></iframe>
     <script>
       var solidityeditor = document.querySelector('iframe')
 
