@@ -104,7 +104,7 @@ Paste it in the editor and wait for the preview to start interacting with it.
 */
 
 
-pragma solidity 0.5.9;
+pragma solidity 0.5.12;
 
 contract SimpleStorage {
 
