@@ -10,10 +10,6 @@
     "analyse": "discify bundle.js > disc.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ethereum-play/editor-solidity.git"
-  },
   "keywords": [
     "embed",
     "embeddable",
@@ -24,10 +20,6 @@
   ],
   "author": "",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ethereum/play/issues"
-  },
-  "homepage": "https://ethereum-play.github.io/editor-solidity",
   "devDependencies": {
     "budo": "^11.6.1",
     "disc": "^1.3.3"
@@ -37,8 +29,8 @@
     "coding-editor": "0.0.5",
     "csjs-inject": "1.0.1",
     "play-logo": "4.0.2",
-    "smartcontract-app": "^4.7.0",
-    "solc-js": "git+https://github.com/ethereum-play/solc-js.git",
+    "smartcontract-app": "^4.9.0",
+    "solc-js": "git+https://github.com/playproject-io-archive/solc-js.git",
     "solc-version": "^0.2.2",
     "twm": "0.0.3"
   }
